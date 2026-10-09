@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ready to Grow? Bean There Done That</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-viewport slides you step through like a roast log; each slide = one claim + one chart. Below 900px the deck becomes a scrolling report. */
+:root {
+  --paper: #F1F2EC;      /* green-bean grey */
+  --card: #FBFBF7;
+  --ink: #1F1A16;        /* espresso */
+  --muted: #6A655C;
+  --rule: #D6D6CB;
+  --light-roast: #C9945A;
+  --medium-roast: #8C5530;
+  --dark-roast: #3E2415;
+  --bean: #4F7A3A;       /* green coffee: good / plan */
+  --alert: #B42A1F;      /* problem */
+  --warn: #B97C08;
+  --chip: #E6E7DE;
+  --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #15120F; --card: #1E1A16; --ink: #EEE8DF; --muted: #A69E92; --rule: #3A332C;
+    --light-roast: #E2B37E; --medium-roast: #C2895C; --dark-roast: #8E644A;
+    --bean: #8DBB6E; --alert: #EF6B5B; --warn: #E3A93A; --chip: #2A251F; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #15120F; --card: #1E1A16; --ink: #EEE8DF; --muted: #A69E92; --rule: #3A332C;
+  --light-roast: #E2B37E; --medium-roast: #C2895C; --dark-roast: #8E644A;
+  --bean: #8DBB6E; --alert: #EF6B5B; --warn: #E3A93A; --chip: #2A251F; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--body); font-size: clamp(14px, 1.05vw + 4px, 20px); line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--display); font-weight: 800; line-height: .95; margin: 0; text-wrap: balance; letter-spacing: .005em; }
+h1 { font-size: clamp(3rem, 8vw, 8.5rem); text-transform: uppercase; }
+h2 { font-size: clamp(2rem, 3.4vw, 3.6rem); text-transform: uppercase; }
+h3 { font-size: 1.35em; text-transform: uppercase; letter-spacing: .02em; }
+p { margin: 0; max-width: 62ch; }
+b, strong { font-weight: 600; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.eyebrow {
+  font-family: var(--mono); font-size: .72em; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); display: flex; gap: .8em; align-items: center; flex-wrap: wrap;
+}
+.eyebrow .tag { padding: .15em .55em; border: 1px solid currentColor; border-radius: 2px; }
+.eyebrow .tag.alert { color: var(--alert); }
+.eyebrow .tag.bean { color: var(--bean); }
+.lede { font-size: 1.12em; color: var(--ink); }
+.muted { color: var(--muted); }
+.alert-t { color: var(--alert); }
+.bean-t { color: var(--bean); }
+.src { font-family: var(--mono); font-size: .62em; color: var(--muted); letter-spacing: .02em; }
+
+/* ---------- deck ---------- */
+.deck { position: relative; height: 100%; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0; padding: clamp(24px, 4.2vh, 56px) clamp(24px, 4.5vw, 80px) clamp(64px, 9vh, 92px);
+  display: grid; grid-template-rows: auto 1fr; grid-template-columns: minmax(0, 1fr); gap: clamp(12px, 2.4vh, 28px);
+  opacity: 0; visibility: hidden; transition: opacity .35s ease;
+}
+.slide.on { opacity: 1; visibility: visible; }
+.slide > header { display: grid; gap: .6em; }
+.body { min-height: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(16px, 2.5vw, 40px); }
+.split { grid-template-columns: minmax(0, 34fr) minmax(0, 66fr); align-items: stretch; }
+.split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.col { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 1em; }
+.col.center { justify-content: center; }
+.chart { flex: 1 1 auto; min-height: 260px; width: 100%; }
+.chart-wrap { display: flex; flex-direction: column; gap: .5em; min-height: 0; flex: 1 1 auto; }
+
+.stat { display: grid; gap: .1em; }
+.stat .n { font-family: var(--display); font-weight: 900; font-size: clamp(2.4rem, 4.2vw, 4.6rem); line-height: .9; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: .85em; color: var(--muted); max-width: 30ch; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.2em 2em; }
+
+.callout { border-left: 4px solid var(--alert); padding: .7em 1em; background: var(--card); }
+.callout.bean { border-left-color: var(--bean); }
+.callout.warn { border-left-color: var(--warn); }
+.callout p { font-size: .92em; }
+.callout h3 { font-size: 1.1em; margin-bottom: .3em; }
+
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; flex-wrap: wrap; }
+.seg button {
+  font: inherit; font-size: .8em; padding: .35em .9em; border: 0; background: transparent; color: var(--ink); cursor: pointer;
+  border-right: 1px solid var(--rule);
+}
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--bean); outline-offset: 2px; }
+
+/* title slide */
+.title-slide { align-content: center; }
+.title-slide h1 span { display: block; }
+.title-slide h1 .not { color: var(--alert); }
+.roast-strip { display: grid; grid-template-columns: repeat(12, 1fr); height: 14px; max-width: 760px; }
+.roast-strip i { display: block; }
+.team { font-family: var(--mono); font-size: .8em; color: var(--muted); display: flex; gap: 1.6em; flex-wrap: wrap; }
+
+/* hook */
+.hook-n { font-family: var(--display); font-weight: 900; font-size: clamp(4.5rem, 13vw, 13rem); line-height: .82; color: var(--alert); font-variant-numeric: tabular-nums; }
+.hook-n small { font-size: .32em; color: var(--ink); margin-left: .15em; }
+
+/* chain scorecard */
+.chain { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.link {
+  font: inherit; text-align: left; color: var(--ink); background: var(--card); border: 1px solid var(--rule); border-top: 6px solid var(--muted);
+  padding: .7em .7em .8em; cursor: pointer; display: grid; gap: .35em; align-content: start; min-width: 0;
+}
+.link[data-s="red"] { border-top-color: var(--alert); }
+.link[data-s="amber"] { border-top-color: var(--warn); }
+.link[data-s="green"] { border-top-color: var(--bean); }
+.link[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: -2px; }
+.link .step { font-family: var(--mono); font-size: .62em; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.link .name { font-family: var(--display); font-weight: 800; font-size: 1.25em; text-transform: uppercase; line-height: 1; }
+.link .v { font-family: var(--mono); font-size: .8em; }
+.chain-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2em; background: var(--card); padding: 1.2em 1.4em; border: 1px solid var(--rule); }
+.chain-detail .big { font-family: var(--display); font-weight: 900; font-size: 3.2em; line-height: .9; }
+.legend-dots { display: flex; gap: 1.2em; font-size: .75em; color: var(--muted); flex-wrap: wrap; }
+.legend-dots i { display: inline-block; width: .8em; height: .8em; margin-right: .35em; vertical-align: -.05em; }
+
+/* tables */
+table { border-collapse: collapse; width: 100%; font-size: .85em; }
+th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-weight: 500; font-size: .78em; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pill { display: inline-block; font-family: var(--mono); font-size: .75em; padding: .1em .5em; border-radius: 2px; color: var(--paper); white-space: nowrap; }
+.pill.red { background: var(--alert); } .pill.amber { background: var(--warn); } .pill.green { background: var(--bean); }
+.table-scroll { overflow: auto; min-height: 0; }
+
+/* moves */
+.moves { align-self: start; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+.move { background: var(--card); padding: 1em 1.1em; display: grid; gap: .45em; align-content: start; }
+.move .k { font-family: var(--mono); font-size: .66em; letter-spacing: .1em; text-transform: uppercase; color: var(--bean); }
+.move h3 { font-size: 1.3em; }
+.move p { font-size: .82em; }
+.move .kpi { font-family: var(--mono); font-size: .7em; color: var(--muted); border-top: 1px dashed var(--rule); padding-top: .45em; }
+
+/* simulator */
+.sim { grid-template-columns: minmax(250px, 30fr) minmax(0, 70fr); }
+.ctrl { display: grid; gap: .25em; }
+.ctrl label { font-size: .8em; display: flex; justify-content: space-between; gap: 1em; }
+.ctrl output { font-family: var(--mono); font-weight: 500; }
+.ctrl input[type=range] { width: 100%; accent-color: var(--bean); }
+.toggle { display: flex; gap: .55em; align-items: flex-start; font-size: .8em; cursor: pointer; }
+.toggle input { accent-color: var(--bean); margin-top: .2em; width: 1em; height: 1em; }
+.presets { display: flex; gap: .5em; flex-wrap: wrap; }
+.presets button { font: inherit; font-size: .75em; padding: .45em .8em; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; border-radius: 2px; }
+.presets button.primary { background: var(--bean); border-color: var(--bean); color: var(--paper); }
+.sim-out { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .8em; }
+.sim-out .stat .n { font-size: clamp(1.6rem, 2.4vw, 2.6rem); }
+.sim-out .stat .l { font-size: .72em; }
+.verdict { font-family: var(--display); font-weight: 800; font-size: 1.5em; text-transform: uppercase; }
+
+/* roadmap */
+.gantt { display: grid; grid-template-columns: minmax(150px, 22%) repeat(4, minmax(0, 1fr)); font-size: .82em; }
+.gantt > div { padding: .45em .6em; border-bottom: 1px solid var(--rule); min-width: 0; }
+.gantt .h { font-family: var(--mono); font-size: .75em; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.gantt .bar { background: var(--bean); color: var(--paper); border-radius: 2px; margin: .25em 0; padding: .3em .6em; font-size: .85em; }
+.gantt .bar.grow { background: var(--medium-roast); }
+
+/* chrome */
+.progress { position: fixed; left: 0; right: 0; bottom: 0; height: 4px; background: var(--rule); z-index: 5; }
+.progress i { display: block; height: 100%; background: var(--medium-roast); width: 0; transition: width .3s; }
+.nav {
+  position: fixed; right: clamp(16px, 2vw, 28px); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 6;
+  display: flex; gap: .4em; align-items: center; font-family: var(--mono); font-size: .75em; color: var(--muted);
+}
+.nav button { font: inherit; border: 1px solid var(--rule); background: var(--card); color: var(--ink); padding: .4em .7em; cursor: pointer; border-radius: 2px; }
+.brand { position: fixed; left: clamp(24px, 4.5vw, 80px); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); font-family: var(--mono); font-size: .68em; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; z-index: 4; }
+.notes-panel {
+  position: fixed; left: 0; right: 0; bottom: 4px; max-height: 38vh; overflow: auto; z-index: 7;
+  background: var(--ink); color: var(--paper); padding: 1em clamp(24px, 4.5vw, 80px) 1.2em; font-size: .85em;
+}
+.notes-panel h4 { margin: 0 0 .4em; font-family: var(--mono); font-weight: 500; font-size: .75em; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.notes-panel p { max-width: 110ch; margin-bottom: .5em; }
+aside.notes { display: none; }
+
+/* stacked (phone / narrow) mode */
+@media (max-width: 899px) {
+  html, body { height: auto; }
+  .deck { height: auto; overflow: visible; }
+  .slide { position: relative; inset: auto; opacity: 1; visibility: visible; padding: 40px 16px 48px; border-bottom: 1px solid var(--rule); min-height: 0; }
+  .split, .split.even, .sim, .chain-detail { grid-template-columns: minmax(0, 1fr); }
+  .chain { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .moves { grid-template-columns: minmax(0, 1fr); }
+  .sim-out { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart { min-height: 300px; }
+  .slide > header, .col, .chart-wrap { min-width: 0; }
+  .hook-n { font-size: clamp(3.2rem, 18vw, 6rem); }
+  .table-scroll, .chain-detail { overflow-x: auto; }
+  .nav, .progress, .brand { display: none; }
+  .gantt { grid-template-columns: 110px repeat(4, minmax(70px, 1fr)); }
+  .gantt-scroll { overflow-x: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .slide, .progress i { transition: none; } }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.34.0/plotly.min.js"></script>
+</head>
+<body>
+<main class="deck" id="deck">
+
+<!-- 1 TITLE -->
+<section class="slide title-slide" id="s-title" data-label="Title">
+  <header>
+    <div class="eyebrow"><span>Advice to the CEO</span><span>·</span><span>2023 operations review</span><span>·</span><span>Storytelling with Data</span></div>
+  </header>
+  <div class="body" style="align-content:center; gap: clamp(18px,3vh,36px)">
+    <div class="roast-strip" aria-hidden="true" id="strip"></div>
+    <h1><span>Ready to grow?</span><span class="not">Not yet.</span><span>In 12 months: yes.</span></h1>
+    <p class="lede">What a year of data from Bean There Done That tells us about the road from steady state to growth: four roadblocks, and the order in which to remove them.</p>
+    <div class="team"><span>[Student name 1 · number]</span><span>[Student name 2 · number]</span><span>[Student name 3 · number]</span><span>Class [__] · 2026</span></div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker A (30 s).</b> Good morning. We are [names]. Bean There Done That hired us with one question from the CEO: are we ready to grow next year? Our short answer is on the screen. Not yet, and in twelve months, yes. In the next fifteen minutes we show you why, and what has to happen first.</p>
+  </aside>
+</section>
+
+<!-- 2 HOOK -->
+<section class="slide" id="s-hook" data-label="Hook">
+  <header>
+    <div class="eyebrow"><span>Start with one number</span></div>
+  </header>
+  <div class="body split even">
+    <div class="col center">
+      <div class="hook-n"><span id="hook-kg">48,000</span><small>kg</small></div>
+      <h2>of roasted coffee expired in our warehouse in 2023.</h2>
+      <p class="lede" id="hook-lede"></p>
+    </div>
+    <div class="col center">
+      <div class="chart-wrap" style="flex:0 0 auto">
+        <div class="eyebrow">Where every kilo we roasted in 2023 went</div>
+        <div class="chart" id="c-hook" style="flex:0 0 260px; min-height:260px"></div>
+        <div class="src">Source: Roasting, Inventory (finished product), E-com & B2B orders sheets. Roasted = good batches × final weight.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker A (60 s).</b> Before we talk about growth, one number. In 2023 the company threw away 48 tonnes of roasted coffee because it expired in the warehouse. At shelf price that is 1.16 million euro, and it is 6 percent of everything the roasters produced. It is enough coffee to serve every webshop customer for 25 days.</p>
+    <p>A company that cannot sell what it already roasts is not ready to roast more. But this number also tells us something hopeful: the capacity for growth is partly already there. It is just in the bin. Hover over the bar to see the split.</p>
+  </aside>
+</section>
+
+<!-- 3 QUESTION + APPROACH -->
+<section class="slide" id="s-approach" data-label="Approach">
+  <header>
+    <div class="eyebrow"><span>The brief</span><span>·</span><span>CRISP-DM</span></div>
+    <h2>“Are we ready to grow as of next year?”</h2>
+  </header>
+  <div class="body split even">
+    <div class="col">
+      <p class="lede">In January 2023 the company stopped accepting new customers to create a steady state. That makes 2023 a clean test: <b>with demand frozen, can the operation run well?</b> If not, growth will only make the problems larger.</p>
+      <p>We tested every step of the chain against one standard: <b>could it absorb 20% more volume next year</b> without losing coffee, customers or money?</p>
+      <div class="stats" id="approach-stats"></div>
+    </div>
+    <div class="col">
+      <table>
+        <thead><tr><th>CRISP-DM phase</th><th>What we did</th></tr></thead>
+        <tbody>
+          <tr><td>Business understanding</td><td>Company profile, the CEO question, the chain from sourcing to doorstep</td></tr>
+          <tr><td>Data understanding</td><td>5 sheets: green beans & packaging, roasting log, finished stock, 240,352 web orders, 273 B2B deliveries</td></tr>
+          <tr><td>Data preparation</td><td>Bags to kg, holiday-aware delivery promise, implied bean usage, mass balance check (production − sales − scrap = stock change, to the kilo)</td></tr>
+          <tr><td>Modelling</td><td>KPIs per chain step, capacity per machine, a 12-month growth simulator</td></tr>
+          <tr><td>Evaluation</td><td>Each KPI scored against a target; roadblocks ranked by impact on growth</td></tr>
+          <tr><td>Deployment</td><td>A 12-month roadmap and a KPI set the CEO can keep tracking</td></tr>
+        </tbody>
+      </table>
+      <div class="src">Analysis in Python (pandas). Charts in Plotly. Every number in this deck is recomputed from the source file by build_deck.py.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker A (60 s).</b> At the start of 2023 the company froze its customer base. For us as analysts that is a gift: it is a controlled experiment. Demand was frozen, so if the operation struggled in 2023, it will struggle more with growth.</p>
+    <p>We followed CRISP-DM. One check made us trust the data: production minus sales minus scrap equals the change in stock, to the kilo, for every roast and every month. So the numbers you will see add up. Our test for every part of the company was simple: could it take 20 percent more volume?</p>
+  </aside>
+</section>
+
+<!-- 4 CHAIN SCORECARD -->
+<section class="slide" id="s-chain" data-label="KPI chain">
+  <header>
+    <div class="eyebrow"><span>KPI scorecard</span><span>·</span><span>click a step</span></div>
+    <h2>Seven steps from farm to doorstep. Four are red.</h2>
+  </header>
+  <div class="body" style="grid-template-rows:auto auto auto; align-content:start">
+    <div class="chain" id="chain" role="group" aria-label="Operations chain KPIs"></div>
+    <div class="legend-dots"><span><i style="background:var(--alert)"></i>blocks growth</span><span><i style="background:var(--warn)"></i>needs attention</span><span><i style="background:var(--bean)"></i>ready</span></div>
+    <div class="chain-detail" id="chain-detail" aria-live="polite"></div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker A (75 s).</b> Here is the whole company on one screen: seven steps from the farm to the customer's door. For each step we defined a KPI and a target. Red means it blocks growth, amber means it needs work, green means it is ready.</p>
+    <p>Click Stock: 48 tonnes expired. Click Roasting: both roasters already run a full shift every day. Sourcing: at one point we had beans for only 10 days. Delivery and shipping: we lose a million euro a year on parcels. The rest of our story walks through these red boxes, in the order they occur in the coffee's life. Hand over to [B].</p>
+  </aside>
+</section>
+
+<!-- 5 SEASONS -->
+<section class="slide" id="s-seasons" data-label="Demand">
+  <header>
+    <div class="eyebrow"><span>Understanding demand</span></div>
+    <h2>Our customers drink like the seasons</h2>
+  </header>
+  <div class="body split">
+    <div class="col center">
+      <div class="stat"><span class="n mono" id="st-opd">658</span><span class="l">web orders every single day of 2023. The customer freeze is visible as a flat line.</span></div>
+      <div class="stat"><span class="n alert-t" id="st-q4">+38%</span><span class="l">more coffee per day in Sep–Dec than in Mar–Aug. The same customers simply buy bigger baskets: 3.5 kg per order instead of 2.5 kg.</span></div>
+      <p class="muted" style="font-size:.85em">February shows the same jump. Demand is seasonal and predictable, so it can be planned.</p>
+    </div>
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Daily web orders (count) vs. kilograms ordered per day, 2023</div>
+        <div class="chart" id="c-seasons"></div>
+        <div class="src">Source: E-com sales orders by product. 500 g bag = 0.5 kg.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker B (60 s).</b> To understand the waste, start with demand. The flat line is the number of web orders per day: 658, every day of the year. That is the customer freeze, perfectly visible.</p>
+    <p>But look at the kilograms. From September to December, and again in February, the same customers order much bigger baskets: 3.5 kilos per order instead of 2.5. Demand in the autumn is 38 percent higher than in summer. The important thing is that this is predictable. It repeats with the calendar.</p>
+  </aside>
+</section>
+
+<!-- 6 METRONOME -->
+<section class="slide" id="s-metronome" data-label="Production">
+  <header>
+    <div class="eyebrow"><span>Understanding production</span></div>
+    <h2>…but we roast like a metronome</h2>
+  </header>
+  <div class="body split">
+    <div class="col center">
+      <p class="lede">The roasters produce the same amount every month, whatever customers buy.</p>
+      <div class="callout"><h3>Mar–Aug: too much</h3><p>We roast more than we sell. Stock piles up and passes its freshness date.</p></div>
+      <div class="callout warn"><h3>Sep–Dec: too little</h3><p>We sell more than we can roast. We survive the peak only by emptying the summer stock.</p></div>
+      <div class="seg" role="group" aria-label="Choose roast" id="roast-toggle">
+        <button aria-pressed="true" data-r="All">All roasts</button><button aria-pressed="false" data-r="Light">Light</button><button aria-pressed="false" data-r="Medium">Medium</button><button aria-pressed="false" data-r="Dark">Dark</button>
+      </div>
+    </div>
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Roasted (good batches) vs. sold, kg per month</div>
+        <div class="chart" id="c-metronome"></div>
+        <div class="src">Source: Roasting (batches/day × workdays − rejects) × final weight; demand = web + B2B kg.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker B (60 s).</b> Now production. The bars are what we roast, the line is what we sell. The roasters run like a metronome: around 65 tonnes every month. This is push production. In spring and summer we roast more than we sell, and in autumn less than we sell.</p>
+    <p>Use the buttons to check each roast. Dark roast is the extreme: in March we roasted 10 tonnes more than we sold. This mismatch drives most of what follows.</p>
+  </aside>
+</section>
+
+<!-- 7 WASTE -->
+<section class="slide" id="s-waste" data-label="Roadblock 1">
+  <header>
+    <div class="eyebrow"><span class="tag alert">Roadblock 1 of 4</span><span>Waste</span></div>
+    <h2>The summer surplus goes stale, then it goes in the bin</h2>
+  </header>
+  <div class="body split">
+    <div class="col center">
+      <div class="stat"><span class="n alert-t" id="st-scrap-eur">€1.16M</span><span class="l">at shelf price expired between June and August. About €0.48M of that is green beans alone.</span></div>
+      <div class="stat"><span class="n" id="st-cover">49 days</span><span class="l">of sales sat on the shelf (dark roast, May). Specialty coffee tastes best within about four weeks of roasting.</span></div>
+      <div class="callout"><p>So a premium brand also ships coffee that is weeks old. Waste is a brand risk as well as a cost.</p></div>
+    </div>
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Finished stock by roast (kg, month end) and expired coffee (red)</div>
+        <div class="chart" id="c-waste"></div>
+        <div class="src">Source: Inventory (finished product), reason code EXP. Average stock value €1.27M.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker B (75 s).</b> This is where the summer surplus ends up. From March to May the stock grows to almost 70 tonnes. Then from June to August the red bars appear: 48 tonnes written off as expired.</p>
+    <p>There is a second problem hidden in this chart. In May the dark roast stock covered 49 days of sales. Specialty coffee is at its best within about four weeks of roasting. So even the coffee that did not expire reached customers older than a premium brand should allow. Waste is not only a cost here. It is a quality and brand risk.</p>
+  </aside>
+</section>
+
+<!-- 8 WALL -->
+<section class="slide" id="s-wall" data-label="Roadblock 2">
+  <header>
+    <div class="eyebrow"><span class="tag alert">Roadblock 2 of 4</span><span>Capacity</span></div>
+    <h2>Both roasters already run a full shift, every working day</h2>
+  </header>
+  <div class="body split">
+    <div class="col center">
+      <div class="stats" id="wall-stats"></div>
+      <div class="callout"><p>The packing line, shared by both roasters, also needs about <b id="pack-h">8.3</b> hours a day. There is no idle machine to absorb growth in the peak.</p></div>
+      <p class="muted" style="font-size:.85em">With 20% growth, autumn demand would exceed the current shift by about half. That is the capacity wall.</p>
+    </div>
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Hours of work per day: roasting (setup + run) per machine and packing</div>
+        <div class="chart" id="c-wall"></div>
+        <div class="src">Source: Roasting. Hours = batches per day × (setup + run time). Packing = batches × packing time, both machines. Dashed line: one 8-hour shift.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker B (60 s).</b> Why not simply roast more in the autumn? Because the machines are full. We calculated how many hours each roaster works per day: batches times setup plus roasting time. The P60 runs 8.0 hours, the Px120 8.5 hours. The packing line, which both share, is also at about 8.3 hours. That is one complete shift on every machine, every working day.</p>
+    <p>So this is the wall. If the company grows 20 percent, autumn demand would be about 50 percent above what one shift can produce. Hand over to [C].</p>
+  </aside>
+</section>
+
+<!-- 9 HIDDEN CAPACITY -->
+<section class="slide" id="s-hidden" data-label="Hidden capacity">
+  <header>
+    <div class="eyebrow"><span class="tag bean">Opportunity</span><span>Capacity hidden in the data</span></div>
+    <h2>Before buying a third roaster, win back the lost minutes</h2>
+  </header>
+  <div class="body split even">
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Achieved vs. nameplate throughput (kg green coffee per roasting hour)</div>
+        <div class="chart" id="c-nameplate"></div>
+      </div>
+      <p style="font-size:.9em">The Px120 delivers only <b id="px-eff">61%</b> of its rated speed. <b id="px-setup">27%</b> of every cycle is setup, not roasting. Halving setup time (SMED, campaign scheduling) adds about 15% capacity at almost no cost.</p>
+    </div>
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Rejected batches by roast and QC reason, 2023</div>
+        <div class="chart" id="c-quality"></div>
+      </div>
+      <p style="font-size:.9em">Light roast fails QC <b id="light-x">3.6×</b> as often as the others (<b id="light-rate">5.0%</b> of batches), spread across weight, colour and profile. That points to the roast recipe on the Px120, not to one bad month.</p>
+      <div class="src">Source: Roasting. Nameplate from case brief: P60 215 kg/h, Px120 480 kg/h.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker C (75 s).</b> There is good news in the roasting data. The Px120 is rated at 480 kilos per hour, but it achieves 292. Part of that is physics, but 27 percent of each cycle is setup time: six minutes between batches. Halving setup with quick-changeover methods and by roasting the same roast in longer campaigns gives about 15 percent extra capacity for almost no investment.</p>
+    <p>Second: light roast. One in twenty light roast batches is rejected, more than 3.5 times as often as medium or dark. The rejects are spread over weight, colour and profile, so this is a recipe and calibration problem, not bad luck. Fixing it saves 8 tonnes a year and machine time.</p>
+  </aside>
+</section>
+
+<!-- 10 SOURCING -->
+<section class="slide" id="s-beans" data-label="Roadblock 3">
+  <header>
+    <div class="eyebrow"><span class="tag alert">Roadblock 3 of 4</span><span>Sourcing</span></div>
+    <h2>Some months, one late container would stop a roaster</h2>
+  </header>
+  <div class="body split">
+    <div class="col center">
+      <div class="stat"><span class="n alert-t" id="st-green-min">10 days</span><span class="l">of green beans left in total at the end of July. Uganda was down to 1,226 kg.</span></div>
+      <p>Beans come by sea from Costa Rica, Uganda and Colombia, in lots of two containers (20,160 kg). Shipping from origin takes weeks. Orders follow no visible reorder point: stock swings from 10 to 50 days.</p>
+      <div class="callout warn"><p>With 20% growth, the same buying pattern runs dry. Direct trade with three single farms is great for the story and fragile for supply.</p></div>
+    </div>
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Green bean stock per origin, in days of usage (month end)</div>
+        <div class="chart" id="c-beans"></div>
+        <div class="src">Source: Inventory (raw material). Days = stock ÷ average monthly usage of that origin, implied from stock movements. Dashed: proposed 6-week safety level.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker C (60 s).</b> Further upstream: the green beans. We converted bean stock into days of usage. The dashed line is a six-week safety level, which is reasonable for coffee that travels by sea. Almost every origin dips below it, and at the end of July the company had beans for only 10 days in total. Uganda was down to 1,200 kilos.</p>
+    <p>There is no visible reorder rule: two containers arrive when someone orders them. In a steady state you get away with it. With growth, one delayed ship stops a roaster.</p>
+  </aside>
+</section>
+
+<!-- 11 DOORSTEP -->
+<section class="slide" id="s-door" data-label="Roadblock 4">
+  <header>
+    <div class="eyebrow"><span class="tag alert">Roadblock 4 of 4</span><span>The doorstep</span></div>
+    <h2>Every parcel loses money, and some customers pay for a bug</h2>
+  </header>
+  <div class="body split even">
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Shipping result per order-value band: fee charged − PostNL cost (€)</div>
+        <div class="chart" id="c-ship"></div>
+      </div>
+      <p style="font-size:.9em">We pay PostNL €6.75 per parcel and charge €4.95 below €55, nothing above. Net: <b class="alert-t" id="ship-net">−€1.02M</b> a year, <b id="ship-pct">5.8%</b> of web revenue.</p>
+    </div>
+    <div class="col">
+      <div class="callout">
+        <h3>The free-shipping bug</h3>
+        <p>We promise free shipping above €55. The checkout gives it from <b>5 bags</b>. So <b id="wrong-n">30,725</b> orders of three or four 1 kg bags (€69–€106) paid <b id="wrong-eur">€152,089</b> they should not have.</p>
+      </div>
+      <div class="chart-wrap">
+        <div class="eyebrow">Parcels delivered per weekday</div>
+        <div class="chart" id="c-weekday" style="min-height:180px"></div>
+      </div>
+      <p style="font-size:.9em"><b id="ontime">92.1%</b> of parcels arrive on the promised next working day, so <b id="late-n">18,991</b> do not. Weekend orders pile up: Monday handles 2.5× a normal day.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker C (75 s).</b> The last roadblock is at the customer's door. Every order band loses money on shipping. PostNL costs 6.75 euro per parcel, we charge 4.95 below 55 euro and nothing above. In total that is minus 1 million euro a year.</p>
+    <p>We also found a bug. The website promises free shipping above 55 euro, but the checkout actually gives it from five bags. Someone ordering three 1-kilo bags for 69 euro still pays shipping. That happened 30,725 times: 152 thousand euro charged against our own promise. That is a quick fix and a reputation risk.</p>
+    <p>And delivery: 92 percent arrive on the promised day. Eight percent are late, spread evenly over the year, which points at the carrier agreement. Mondays get two and a half times the normal volume because nothing ships at the weekend.</p>
+  </aside>
+</section>
+
+<!-- 12 WHERE TO GROW -->
+<section class="slide" id="s-where" data-label="Where to grow">
+  <header>
+    <div class="eyebrow"><span class="tag bean">Fresh perspective</span><span>Where growth should come from</span></div>
+    <h2>The Randstad barely knows us, and offices smooth the seasons</h2>
+  </header>
+  <div class="body split even">
+    <div class="col">
+      <div class="chart-wrap">
+        <div class="eyebrow">Web orders per 1,000 inhabitants, by province (2023)</div>
+        <div class="chart" id="c-prov"></div>
+        <div class="src">Source: E-com orders; population ≈ CBS 1 Jan 2023.</div>
+      </div>
+    </div>
+    <div class="col center">
+      <div class="stat"><span class="n bean-t" id="st-gap">+85,000</span><span class="l">extra orders a year (+36%) if Noord- and Zuid-Holland bought like the rest of the country. That is 6.8 million people we barely reach.</span></div>
+      <div class="stat"><span class="n" id="st-b2bkg">€1.26</span><span class="l">delivery cost per kg for B2B offices, against €2.28 per kg for a web parcel. B2B demand is flat all year, so it fills the summer dip instead of the autumn peak.</span></div>
+      <p style="font-size:.9em">9 of our 21 office clients are already in Amsterdam, Rotterdam and The Hague. The truck already drives there.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker C (60 s).</b> Now, where should growth come from once we are ready? We divided web orders by population per province. Gelderland and Utrecht are strong. Noord-Holland and Zuid-Holland, 6.8 million people, are the weakest of all. If they ordered like the rest of the country we would have 85 thousand extra orders a year.</p>
+    <p>Second idea: offices. B2B demand is flat all year, so it fills the summer dip instead of making the autumn peak worse. It is also cheaper to deliver: 1.26 euro per kilo against 2.28 for a parcel. And our truck already drives to Amsterdam, Rotterdam and The Hague. Hand over to [A].</p>
+  </aside>
+</section>
+
+<!-- 13 VERDICT -->
+<section class="slide" id="s-verdict" data-label="Verdict">
+  <header>
+    <div class="eyebrow"><span>Evaluation</span></div>
+    <h2>Verdict: not ready yet, but every roadblock is fixable</h2>
+  </header>
+  <div class="body" style="grid-template-rows: 1fr">
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Roadblock</th><th>Evidence 2023</th><th>What +20% growth would do</th><th>Status</th></tr></thead>
+        <tbody id="verdict-rows"></tbody>
+      </table>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker A (45 s).</b> So, the evaluation. Four roadblocks, each with evidence from 2023 and with what would happen if we grew 20 percent without changes. The most serious is capacity combined with planning: the company would lose about 55 tonnes of sales in the autumn, while still throwing coffee away in summer. None of these needs a third roaster or a new warehouse. They need planning, process discipline and a few hours more in the peak.</p>
+  </aside>
+</section>
+
+<!-- 14 MOVES -->
+<section class="slide" id="s-moves" data-label="Recommendations">
+  <header>
+    <div class="eyebrow"><span>Recommendations</span><span>·</span><span>in this order</span></div>
+    <h2>Six moves: fix, free, secure, then grow</h2>
+  </header>
+  <div class="body">
+    <div class="moves">
+      <div class="move"><span class="k">Fix · Q1</span><h3>Roast to demand</h3><p>Monthly sales & operations planning using last year's season curve. Roast to a maximum of 4 weeks of stock, first in first out. Buy beans ahead for the peak, not roasted coffee.</p><span class="kpi">KPI: expired kg → 0 · stock cover ≤ 28 days</span></div>
+      <div class="move"><span class="k">Fix · Q1</span><h3>Honour our own promise</h3><p>Correct the checkout to free shipping from €55 order value. Renegotiate the PostNL rate and a 97% next-day SLA; add Saturday dispatch to flatten Mondays.</p><span class="kpi">KPI: on-time ≥ 97% · shipping loss ≤ 3% of revenue</span></div>
+      <div class="move"><span class="k">Free · Q1–Q2</span><h3>Win back lost minutes</h3><p>Halve Px120 setup time (quick changeover, campaign scheduling per roast). Recalibrate the light roast profile and colour targets.</p><span class="kpi">KPI: setup ≤ 3 min · light reject ≤ 1.5% · +15% capacity</span></div>
+      <div class="move"><span class="k">Free · Q2–Q3</span><h3>A peak shift, Sep–Feb</h3><p>Recruit and train a second roasting and packing shift for the six peak months, ready by September. Flexible contracts, no new machines.</p><span class="kpi">KPI: peak utilisation ≤ 90% of available hours</span></div>
+      <div class="move"><span class="k">Secure · Q1</span><h3>Reorder points for beans</h3><p>6-week safety stock per origin, reorder point per farm, single containers more often instead of double lots. Add a back-up supplier per origin.</p><span class="kpi">KPI: green cover ≥ 42 days, every origin, every month</span></div>
+      <div class="move"><span class="k">Grow · from Q2</span><h3>Reopen, smartly</h3><p>Reopen for new customers in spring, when capacity is free. Target offices and the Randstad first: flat demand, cheap delivery, the truck already goes there.</p><span class="kpi">KPI: +20% volume · B2B share 2% → 8%</span></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker A (90 s).</b> Our advice is six moves, in a fixed order. First fix: roast to demand with a monthly planning meeting, maximum four weeks of stock; and honour our own promise by fixing the shipping bug and renegotiating with PostNL. Second, free capacity: halve the setup time and fix light roast quality, then add a second shift only in the six peak months. Third, secure the beans with reorder points and safety stock. Only then grow: reopen in spring, starting with offices and the Randstad.</p>
+    <p>Every move has a KPI, so the CEO can check progress every month. Let us show you what this does in numbers.</p>
+  </aside>
+</section>
+
+<!-- 15 SIMULATOR -->
+<section class="slide" id="s-sim" data-label="Simulator">
+  <header>
+    <div class="eyebrow"><span class="tag bean">Simulation</span><span>try it</span></div>
+    <h2>What happens if we grow next year?</h2>
+  </header>
+  <div class="body sim">
+    <div class="col" style="gap:.9em">
+      <div class="presets">
+        <button type="button" id="p-nothing">Grow 20%, change nothing</button>
+        <button type="button" class="primary" id="p-plan">Grow 20% with our plan</button>
+      </div>
+      <div class="ctrl"><label for="i-growth">Web shop growth <output id="o-growth">20%</output></label><input type="range" id="i-growth" min="0" max="60" step="5" value="20"></div>
+      <div class="ctrl"><label for="i-b2b">New office clients (B2B) <output id="o-b2b">0</output></label><input type="range" id="i-b2b" min="0" max="80" step="5" value="0"></div>
+      <div class="ctrl"><label for="i-setup">Setup time reduction <output id="o-setup">0%</output></label><input type="range" id="i-setup" min="0" max="60" step="10" value="0"></div>
+      <label class="toggle"><input type="checkbox" id="i-plan"> <span>Roast to demand (max 4 weeks of stock)</span></label>
+      <label class="toggle"><input type="checkbox" id="i-shift"> <span>Peak shift Sep–Feb (+90% hours)</span></label>
+      <label class="toggle"><input type="checkbox" id="i-light"> <span>Fix light roast quality (5% → 1.5% rejects)</span></label>
+      <div class="verdict" id="sim-verdict" aria-live="polite"></div>
+    </div>
+    <div class="col">
+      <div class="sim-out" id="sim-out"></div>
+      <div class="chart-wrap">
+        <div class="eyebrow">Capacity (wide bars, red = short), roasted (narrow bars) and demand (line), kg per month</div>
+        <div class="chart" id="c-sim"></div>
+        <div class="src">Check: with no growth and today's flat plan the model predicts 38 t expired (actual 2023: 48 t). Model: 2023 demand curve × growth; 1 shift = 2023 output per month; coffee older than 30 days expires; target stock 15 days. Directional, not a forecast.</div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker B (90 s).</b> This is our simulator, built on the 2023 data. First button: grow 20 percent and change nothing. In autumn demand is above capacity in every month. We would lose around 55 tonnes of sales, about 1.4 million euro, and still need to buy far more beans.</p>
+    <p>Second button: the same 20 percent with our plan. Roast to demand, setup halved, light roast fixed, peak shift in autumn. No lost sales, no expired coffee, and capacity left for more. You can move the sliders: with our plan the same two roasters can carry about 40 percent growth. We invite you to try it in the Q&A.</p>
+  </aside>
+</section>
+
+<!-- 16 ROADMAP -->
+<section class="slide" id="s-roadmap" data-label="Roadmap">
+  <header>
+    <div class="eyebrow"><span>Deployment</span></div>
+    <h2>Twelve months from steady state to ready</h2>
+  </header>
+  <div class="body split">
+    <div class="col">
+      <div class="stat"><span class="n bean-t" id="st-value">≈ €1.7M</span><span class="l">a year at today's size: expired stock avoided (<span id="v-scrap">€1.16M</span> at shelf price) plus the shipping loss halved (<span id="v-ship">€0.51M</span>).</span></div>
+      <div class="stat"><span class="n" id="st-growth-rev">+€3.6M</span><span class="l">extra revenue a year at +20% volume, which the simulator shows our plan can carry.</span></div>
+      <p style="font-size:.9em">Investment is mostly people and process: a planner, a peak shift, a changeover project. No third roaster, no new warehouse.</p>
+      <div class="callout bean"><p>Ask: approve the planning, shipping, changeover and bean moves today. Decide on the peak shift in April, when the first planning results are in.</p></div>
+    </div>
+    <div class="col">
+      <div class="gantt-scroll">
+        <div class="gantt" id="gantt"></div>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker B (60 s).</b> Here is the timeline. The first quarter is about fixing: planning, shipping, bean reorder points. The second quarter frees capacity: setup reduction and light roast. The peak shift is recruited in summer and is ready for September. Growth starts in the spring, with offices and the Randstad, so new demand arrives when capacity is free.</p>
+    <p>What does it bring? Stopping the waste alone is worth over a million euro at shelf price. Halving the shipping loss is half a million. And we need no third roaster. Our concrete ask: approve the planning, shipping, changeover and bean moves today and decide on the peak shift in April.</p>
+  </aside>
+</section>
+
+<!-- 17 CLOSE -->
+<section class="slide title-slide" id="s-close" data-label="Close">
+  <header><div class="eyebrow"><span>So, are we ready to grow?</span></div></header>
+  <div class="body" style="align-content:center; gap: clamp(18px,3vh,36px)">
+    <h1 style="font-size:clamp(2.6rem,6vw,6.5rem)"><span>Last year: 48,000 kg in the bin.</span><span class="bean-t">Next year: 0 kg in the bin,</span><span>+20% customers, same two roasters.</span></h1>
+    <p class="lede">Fix the planning. Free the capacity. Secure the beans. Then grow.</p>
+    <p class="muted">Thank you. Questions? The simulator is live, so try your own scenario.</p>
+  </div>
+  <aside class="notes">
+    <p><b>Speaker A (30 s).</b> So, are we ready to grow? Last year 48 tonnes went in the bin. With these moves, next year that is zero, we serve 20 percent more customers, and we do it with the same two roasters. Fix, free, secure, then grow. Thank you, we are happy to take your questions.</p>
+  </aside>
+</section>
+
+<!-- A1 EXPLORER -->
+<section class="slide" id="s-explore" data-label="Appendix A">
+  <header>
+    <div class="eyebrow"><span>Appendix A</span><span>·</span><span>for Q&A</span></div>
+    <h2>Explore the data</h2>
+  </header>
+  <div class="body" style="grid-template-rows:auto 1fr">
+    <div style="display:flex; gap:1em; flex-wrap:wrap; align-items:center">
+      <div class="seg" role="group" aria-label="Metric" id="ex-metric">
+        <button aria-pressed="true" data-k="stock">Finished stock (kg)</button><button aria-pressed="false" data-k="cover">Stock cover (days)</button><button aria-pressed="false" data-k="reject">Reject rate (%)</button><button aria-pressed="false" data-k="ontime">On-time (%)</button><button aria-pressed="false" data-k="kgorder">kg per order</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><div class="chart" id="c-explore"></div><div class="src" id="ex-src"></div></div>
+  </div>
+  <aside class="notes"><p>Backup slide for questions. Switch the metric to answer follow-up questions directly from the data.</p></aside>
+</section>
+
+<!-- A2 METHOD -->
+<section class="slide" id="s-method" data-label="Appendix B">
+  <header>
+    <div class="eyebrow"><span>Appendix B</span><span>·</span><span>method & data quality</span></div>
+    <h2>Assumptions and what the data cannot tell us</h2>
+  </header>
+  <div class="body split even">
+    <div class="col">
+      <h3>Assumptions</h3>
+      <ul style="margin:0; padding-left:1.1em; font-size:.85em; display:grid; gap:.4em">
+        <li>Bag type 1 = 1 kg, bag type 2 = 500 g (confirmed by price per bag: €22.98 vs €11.49 for dark roast).</li>
+        <li>Delivery promise = next working day, excluding Dutch public holidays.</li>
+        <li>Roasting hours = batches × (setup + run time); cooling overlaps with the next batch.</li>
+        <li>Expired value at shelf price per kg from the finished-goods sheet; green bean cost uses the weighted purchase price (€8.32/kg) and 16.9% roast loss.</li>
+        <li>Population per province approximated from CBS (1 Jan 2023).</li>
+        <li>Simulator: 1 shift = 2023 monthly output; extra shift = 90% as productive; 30-day freshness window.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>Data quality findings</h3>
+      <ul style="margin:0; padding-left:1.1em; font-size:.85em; display:grid; gap:.4em">
+        <li><b>Packaging stock does not reconcile.</b> We sell about 83,000 bags of 500 g a month, but the bag stock drops by only about 20,000 a month. The bag inventory is not tracked reliably, so stock-outs could come as a surprise.</li>
+        <li>Shipping boxes do reconcile: about 20,000 used a month, one per web order.</li>
+        <li>Orders have a date but no time. Same-day dispatch cut-offs cannot be tested.</li>
+        <li>The data has no cost price, wages or energy, so we report value at shelf price and green-bean cost rather than profit.</li>
+        <li>Which origin goes into which roast is unknown, so bean risk is shown per origin.</li>
+      </ul>
+      <div class="callout warn"><p>Recommendation: one inventory system that scans packaging use at the packing line, and a cost price per roast.</p></div>
+    </div>
+  </div>
+  <aside class="notes"><p>Backup slide. Use it if the assessor asks about the validity of the analysis or about the limits of the data.</p></aside>
+</section>
+
+</main>
+
+<div class="brand" aria-hidden="true">Bean There Done That · Readiness review</div>
+<nav class="nav" aria-label="Slide navigation">
+  <button type="button" id="b-notes" title="Speaker notes (N)">Notes</button>
+  <button type="button" id="b-theme" title="Switch light / dark">Theme</button>
+  <button type="button" id="b-prev" aria-label="Previous slide">←</button>
+  <span id="count" class="mono">1 / 19</span>
+  <button type="button" id="b-next" aria-label="Next slide">→</button>
+</nav>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+<div class="notes-panel" id="notes" hidden><h4 id="notes-h">Speaker notes</h4><div id="notes-body"></div></div>
+
+<script>
+const D = {"months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], "demand": {"Light": [12050.0, 12997.0, 10304.0, 9820.0, 10234.0, 9867.0, 10246.0, 10090.0, 13721.0, 14018.0, 14241.0, 14117.0], "Medium": [23758.0, 23852.0, 19128.0, 18754.0, 19332.0, 18785.0, 19650.0, 18957.0, 24994.0, 25796.0, 25088.0, 26104.0], "Dark": [27802.0, 29326.0, 22710.0, 22248.0, 22838.0, 22290.0, 22726.0, 23185.0, 31538.0, 32898.0, 31312.0, 32490.0]}, "demand_total": [63611.0, 66176.0, 52141.0, 50822.0, 52404.0, 50942.0, 52623.0, 52232.0, 70253.0, 72712.0, 70642.0, 72710.0], "ecom_kg_total": [61158.0, 64906.0, 50865.0, 49566.0, 51148.0, 49654.0, 51298.0, 51034.0, 69031.0, 71512.0, 69418.0, 71398.0], "b2b_kg": [2453.0, 1270.0, 1276.0, 1256.0, 1255.0, 1288.0, 1325.0, 1198.0, 1222.0, 1200.0, 1224.0, 1313.0], "orders_per_day": [658.5, 658.5, 658.5, 658.5, 658.5, 658.5, 658.5, 658.5, 658.5, 658.5, 658.5, 658.5], "kg_per_order": [3.0, 3.52, 2.49, 2.51, 2.51, 2.51, 2.51, 2.5, 3.49, 3.5, 3.51, 3.5], "aov": [73.97, 86.95, 61.59, 61.99, 61.93, 62.1, 62.14, 61.73, 86.26, 86.44, 86.82, 86.35], "daily": {"date": ["2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04", "2023-01-05", "2023-01-06", "2023-01-07", "2023-01-08", "2023-01-09", "2023-01-10", "2023-01-11", "2023-01-12", "2023-01-13", "2023-01-14", "2023-01-15", "2023-01-16", "2023-01-17", "2023-01-18", "2023-01-19", "2023-01-20", "2023-01-21", "2023-01-22", "2023-01-23", "2023-01-24", "2023-01-25", "2023-01-26", "2023-01-27", "2023-01-28", "2023-01-29", "2023-01-30", "2023-01-31", "2023-02-01", "2023-02-02", "2023-02-03", "2023-02-04", "2023-02-05", "2023-02-06", "2023-02-07", "2023-02-08", "2023-02-09", "2023-02-10", "2023-02-11", "2023-02-12", "2023-02-13", "2023-02-14", "2023-02-15", "2023-02-16", "2023-02-17", "2023-02-18", "2023-02-19", "2023-02-20", "2023-02-21", "2023-02-22", "2023-02-23", "2023-02-24", "2023-02-25", "2023-02-26", "2023-02-27", "2023-02-28", "2023-03-01", "2023-03-02", "2023-03-03", "2023-03-04", "2023-03-05", "2023-03-06", "2023-03-07", "2023-03-08", "2023-03-09", "2023-03-10", "2023-03-11", "2023-03-12", "2023-03-13", "2023-03-14", "2023-03-15", "2023-03-16", "2023-03-17", "2023-03-18", "2023-03-19", "2023-03-20", "2023-03-21", "2023-03-22", "2023-03-23", "2023-03-24", "2023-03-25", "2023-03-26", "2023-03-27", "2023-03-28", "2023-03-29", "2023-03-30", "2023-03-31", "2023-04-01", "2023-04-02", "2023-04-03", "2023-04-04", "2023-04-05", "2023-04-06", "2023-04-07", "2023-04-08", "2023-04-09", "2023-04-10", "2023-04-11", "2023-04-12", "2023-04-13", "2023-04-14", "2023-04-15", "2023-04-16", "2023-04-17", "2023-04-18", "2023-04-19", "2023-04-20", "2023-04-21", "2023-04-22", "2023-04-23", "2023-04-24", "2023-04-25", "2023-04-26", "2023-04-27", "2023-04-28", "2023-04-29", "2023-04-30", "2023-05-01", "2023-05-02", "2023-05-03", "2023-05-04", "2023-05-05", "2023-05-06", "2023-05-07", "2023-05-08", "2023-05-09", "2023-05-10", "2023-05-11", "2023-05-12", "2023-05-13", "2023-05-14", "2023-05-15", "2023-05-16", "2023-05-17", "2023-05-18", "2023-05-19", "2023-05-20", "2023-05-21", "2023-05-22", "2023-05-23", "2023-05-24", "2023-05-25", "2023-05-26", "2023-05-27", "2023-05-28", "2023-05-29", "2023-05-30", "2023-05-31", "2023-06-01", "2023-06-02", "2023-06-03", "2023-06-04", "2023-06-05", "2023-06-06", "2023-06-07", "2023-06-08", "2023-06-09", "2023-06-10", "2023-06-11", "2023-06-12", "2023-06-13", "2023-06-14", "2023-06-15", "2023-06-16", "2023-06-17", "2023-06-18", "2023-06-19", "2023-06-20", "2023-06-21", "2023-06-22", "2023-06-23", "2023-06-24", "2023-06-25", "2023-06-26", "2023-06-27", "2023-06-28", "2023-06-29", "2023-06-30", "2023-07-01", "2023-07-02", "2023-07-03", "2023-07-04", "2023-07-05", "2023-07-06", "2023-07-07", "2023-07-08", "2023-07-09", "2023-07-10", "2023-07-11", "2023-07-12", "2023-07-13", "2023-07-14", "2023-07-15", "2023-07-16", "2023-07-17", "2023-07-18", "2023-07-19", "2023-07-20", "2023-07-21", "2023-07-22", "2023-07-23", "2023-07-24", "2023-07-25", "2023-07-26", "2023-07-27", "2023-07-28", "2023-07-29", "2023-07-30", "2023-07-31", "2023-08-01", "2023-08-02", "2023-08-03", "2023-08-04", "2023-08-05", "2023-08-06", "2023-08-07", "2023-08-08", "2023-08-09", "2023-08-10", "2023-08-11", "2023-08-12", "2023-08-13", "2023-08-14", "2023-08-15", "2023-08-16", "2023-08-17", "2023-08-18", "2023-08-19", "2023-08-20", "2023-08-21", "2023-08-22", "2023-08-23", "2023-08-24", "2023-08-25", "2023-08-26", "2023-08-27", "2023-08-28", "2023-08-29", "2023-08-30", "2023-08-31", "2023-09-01", "2023-09-02", "2023-09-03", "2023-09-04", "2023-09-05", "2023-09-06", "2023-09-07", "2023-09-08", "2023-09-09", "2023-09-10", "2023-09-11", "2023-09-12", "2023-09-13", "2023-09-14", "2023-09-15", "2023-09-16", "2023-09-17", "2023-09-18", "2023-09-19", "2023-09-20", "2023-09-21", "2023-09-22", "2023-09-23", "2023-09-24", "2023-09-25", "2023-09-26", "2023-09-27", "2023-09-28", "2023-09-29", "2023-09-30", "2023-10-01", "2023-10-02", "2023-10-03", "2023-10-04", "2023-10-05", "2023-10-06", "2023-10-07", "2023-10-08", "2023-10-09", "2023-10-10", "2023-10-11", "2023-10-12", "2023-10-13", "2023-10-14", "2023-10-15", "2023-10-16", "2023-10-17", "2023-10-18", "2023-10-19", "2023-10-20", "2023-10-21", "2023-10-22", "2023-10-23", "2023-10-24", "2023-10-25", "2023-10-26", "2023-10-27", "2023-10-28", "2023-10-29", "2023-10-30", "2023-10-31", "2023-11-01", "2023-11-02", "2023-11-03", "2023-11-04", "2023-11-05", "2023-11-06", "2023-11-07", "2023-11-08", "2023-11-09", "2023-11-10", "2023-11-11", "2023-11-12", "2023-11-13", "2023-11-14", "2023-11-15", "2023-11-16", "2023-11-17", "2023-11-18", "2023-11-19", "2023-11-20", "2023-11-21", "2023-11-22", "2023-11-23", "2023-11-24", "2023-11-25", "2023-11-26", "2023-11-27", "2023-11-28", "2023-11-29", "2023-11-30", "2023-12-01", "2023-12-02", "2023-12-03", "2023-12-04", "2023-12-05", "2023-12-06", "2023-12-07", "2023-12-08", "2023-12-09", "2023-12-10", "2023-12-11", "2023-12-12", "2023-12-13", "2023-12-14", "2023-12-15", "2023-12-16", "2023-12-17", "2023-12-18", "2023-12-19", "2023-12-20", "2023-12-21", "2023-12-22", "2023-12-23", "2023-12-24", "2023-12-25", "2023-12-26", "2023-12-27", "2023-12-28", "2023-12-29", "2023-12-30", "2023-12-31"], "orders": [658, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659, 658, 659], "kg": [2298.0, 2232.0, 2330.0, 2260.0, 2222.0, 1641.0, 1636.0, 1634.0, 1648.0, 1628.0, 1590.0, 1642.0, 1652.0, 1638.0, 1661.0, 1688.0, 1656.0, 1654.0, 1668.0, 1642.0, 2093.0, 2235.0, 2352.0, 2322.0, 2314.0, 2242.0, 2300.0, 2308.0, 2338.0, 2360.0, 2273.0, 2350.0, 2302.0, 2258.0, 2298.0, 2329.0, 2344.0, 2361.0, 2309.0, 2358.0, 2330.0, 2322.0, 2300.0, 2362.0, 2380.0, 2332.0, 2288.0, 2326.0, 2214.0, 2306.0, 2308.0, 2360.0, 2232.0, 2289.0, 2297.0, 2280.0, 2334.0, 2394.0, 2345.0, 1604.0, 1614.0, 1669.0, 1634.0, 1592.0, 1665.0, 1638.0, 1640.0, 1636.0, 1658.0, 1680.0, 1625.0, 1632.0, 1641.0, 1646.0, 1638.0, 1604.0, 1573.0, 1646.0, 1682.0, 1650.0, 1614.0, 1675.0, 1707.0, 1656.0, 1627.0, 1632.0, 1633.0, 1638.0, 1676.0, 1642.0, 1636.0, 1642.0, 1622.0, 1650.0, 1706.0, 1676.0, 1646.0, 1666.0, 1690.0, 1680.0, 1596.0, 1622.0, 1615.0, 1620.0, 1664.0, 1686.0, 1611.0, 1657.0, 1618.0, 1636.0, 1710.0, 1657.0, 1618.0, 1674.0, 1645.0, 1662.0, 1712.0, 1643.0, 1614.0, 1690.0, 1685.0, 1626.0, 1610.0, 1683.0, 1660.0, 1662.0, 1665.0, 1645.0, 1664.0, 1642.0, 1682.0, 1639.0, 1674.0, 1640.0, 1638.0, 1637.0, 1668.0, 1640.0, 1675.0, 1653.0, 1664.0, 1609.0, 1656.0, 1617.0, 1667.0, 1648.0, 1640.0, 1675.0, 1620.0, 1648.0, 1618.0, 1682.0, 1671.0, 1695.0, 1643.0, 1626.0, 1660.0, 1628.0, 1679.0, 1681.0, 1637.0, 1688.0, 1682.0, 1670.0, 1666.0, 1632.0, 1640.0, 1651.0, 1676.0, 1666.0, 1612.0, 1656.0, 1653.0, 1647.0, 1630.0, 1660.0, 1656.0, 1629.0, 1657.0, 1619.0, 1663.0, 1688.0, 1678.0, 1658.0, 1646.0, 1632.0, 1664.0, 1620.0, 1651.0, 1652.0, 1641.0, 1662.0, 1664.0, 1627.0, 1676.0, 1660.0, 1642.0, 1668.0, 1682.0, 1662.0, 1664.0, 1726.0, 1588.0, 1580.0, 1677.0, 1666.0, 1648.0, 1670.0, 1656.0, 1652.0, 1683.0, 1618.0, 1634.0, 1643.0, 1660.0, 1624.0, 1647.0, 1616.0, 1662.0, 1678.0, 1651.0, 1639.0, 1652.0, 1663.0, 1623.0, 1660.0, 1650.0, 1684.0, 1604.0, 1654.0, 1646.0, 1620.0, 1645.0, 1656.0, 1666.0, 1679.0, 1634.0, 1642.0, 1622.0, 1657.0, 1637.0, 1674.0, 1610.0, 2304.0, 2304.0, 2316.0, 2332.0, 2330.0, 2230.0, 2392.0, 2380.0, 2251.0, 2345.0, 2210.0, 2298.0, 2357.0, 2280.0, 2246.0, 2292.0, 2252.0, 2291.0, 2242.0, 2286.0, 2358.0, 2323.0, 2302.0, 2314.0, 2267.0, 2354.0, 2252.0, 2314.0, 2290.0, 2320.0, 2318.0, 2308.0, 2306.0, 2315.0, 2270.0, 2332.0, 2356.0, 2314.0, 2292.0, 2368.0, 2359.0, 2210.0, 2258.0, 2314.0, 2335.0, 2352.0, 2294.0, 2378.0, 2289.0, 2296.0, 2215.0, 2296.0, 2254.0, 2355.0, 2322.0, 2308.0, 2277.0, 2351.0, 2263.0, 2262.0, 2346.0, 2302.0, 2284.0, 2290.0, 2352.0, 2329.0, 2282.0, 2298.0, 2385.0, 2272.0, 2324.0, 2360.0, 2280.0, 2344.0, 2332.0, 2365.0, 2338.0, 2253.0, 2294.0, 2279.0, 2371.0, 2350.0, 2296.0, 2268.0, 2273.0, 2262.0, 2330.0, 2320.0, 2318.0, 2373.0, 2292.0, 2396.0, 2368.0, 2320.0, 2226.0, 2224.0, 2310.0, 2346.0, 2298.0, 2314.0, 2332.0, 2362.0, 2330.0, 2324.0, 2283.0, 2300.0, 2236.0, 2236.0, 2362.0, 2286.0, 2286.0, 2238.0, 2322.0, 2292.0, 2272.0, 2248.0, 2324.0, 2274.0, 2317.0, 2334.0, 2301.0, 2338.0]}, "production": {"Light": [13784.0, 11491.0, 13651.0, 9651.0, 13055.0, 12628.0, 12436.0, 13649.0, 11844.0, 13375.0, 13618.0, 10568.0], "Medium": [22856.0, 21533.0, 23197.0, 21290.0, 23781.0, 22979.0, 23051.0, 25357.0, 24161.0, 22472.0, 23406.0, 20145.0], "Dark": [30720.0, 27956.0, 32650.0, 27527.0, 27009.0, 30670.0, 29896.0, 31689.0, 29683.0, 28618.0, 30894.0, 27427.0]}, "production_total": [67361.0, 60979.0, 69498.0, 58468.0, 63845.0, 66277.0, 65384.0, 70695.0, 65688.0, 64465.0, 67918.0, 58140.0], "workdays": [22, 20, 23, 18, 21, 22, 21, 23, 21, 22, 22, 19], "machine_min_day": {"Probat P60": [480.0, 458.0, 484.0, 499.0, 501.0, 490.0, 481.0, 487.0, 482.0, 476.0, 473.0, 467.0], "Probat Px120": [505.0, 513.0, 511.0, 516.0, 535.0, 482.0, 544.0, 487.0, 491.0, 517.0, 520.0, 526.0]}, "packing_min_day": [522.0, 500.0, 467.0, 473.0, 474.0, 533.0, 520.0, 550.0, 452.0, 473.0, 511.0, 493.0], "machines": [{"machine": "Probat P60", "nameplate_kgph": 215, "actual_kgph": 164.0, "effectiveness": 76.0, "setup_share": 20.0, "avg_setup": 4.1, "avg_run": 16.0, "roast_hours_day": 8.02, "load_fill": 91.0, "out_kg": 274230.0, "out_kg_per_roast_hour": 134.6}, {"machine": "Probat Px120", "nameplate_kgph": 480, "actual_kgph": 292.0, "effectiveness": 61.0, "setup_share": 27.0, "avg_setup": 6.1, "avg_run": 16.5, "roast_hours_day": 8.54, "load_fill": 92.0, "out_kg": 504488.0, "out_kg_per_roast_hour": 232.8}], "quality": {"Light": {"batches": 1672.0, "rejected": 83, "rate": 5.0, "rej_kg": 7808.0, "weight": 27, "colour": 27, "profile": 29, "shrink": 14.1}, "Medium": {"batches": 6090.0, "rejected": 78, "rate": 1.3, "rej_kg": 3555.0, "weight": 20, "colour": 34, "profile": 24, "shrink": 16.8}, "Dark": {"batches": 4076.0, "rejected": 63, "rate": 1.5, "rej_kg": 5590.0, "weight": 25, "colour": 18, "profile": 20, "shrink": 19.8}}, "reject_rate_month": {"Light": [2.7, 8.9, 4.0, 5.6, 5.6, 4.9, 4.5, 5.1, 5.9, 3.4, 4.1, 5.7], "Medium": [1.3, 1.1, 1.1, 1.5, 0.2, 1.3, 1.0, 1.8, 1.0, 2.0, 1.4, 1.7], "Dark": [1.1, 0.3, 2.2, 2.0, 2.1, 2.5, 2.4, 1.1, 1.5, 0.9, 0.8, 1.6]}, "fg_stock": {"Light": [5734.0, 4228.0, 7576.0, 7407.0, 10229.0, 6990.0, 9181.0, 12740.0, 10863.0, 10220.0, 9597.0, 6048.0], "Medium": [11349.0, 9030.0, 13100.0, 15637.0, 20087.0, 24281.0, 22682.0, 22083.0, 21251.0, 17928.0, 16246.0, 10288.0], "Dark": [18660.0, 17290.0, 27231.0, 32511.0, 36683.0, 30063.0, 27233.0, 30737.0, 28883.0, 24604.0, 24186.0, 19124.0]}, "fg_scrap": {"Light": [0.0, 0.0, 0.0, 0.0, 0.0, 6000.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "Medium": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5000.0, 7000.0, 0.0, 0.0, 0.0, 0.0], "Dark": [0.0, 0.0, 0.0, 0.0, 0.0, 15000.0, 10000.0, 5000.0, 0.0, 0.0, 0.0, 0.0]}, "fg_value": [874697.0, 743243.0, 1165822.0, 1348387.0, 1634297.0, 1504961.0, 1456575.0, 1615896.0, 1502002.0, 1300565.0, 1230886.0, 866201.0], "fg_cover_days": {"Light": [14.0, 10.0, 22.0, 23.0, 30.0, 22.0, 27.0, 38.0, 24.0, 22.0, 20.0, 13.0], "Medium": [15.0, 12.0, 21.0, 25.0, 32.0, 39.0, 35.0, 35.0, 26.0, 21.0, 20.0, 12.0], "Dark": [20.0, 18.0, 36.0, 44.0, 49.0, 41.0, 36.0, 40.0, 28.0, 23.0, 23.0, 18.0]}, "green_stock": {"Colombia": [32057.0, 57513.0, 36599.0, 62871.0, 46222.0, 27284.0, 8629.0, 28697.0, 31765.0, 35901.0, 18094.0, 43694.0], "Costa Rica": [24647.0, 30076.0, 13399.0, 21858.0, 26044.0, 30627.0, 15548.0, 18910.0, 4194.0, 8192.0, 11928.0, 18949.0], "Uganda": [9887.0, 23710.0, 14539.0, 29154.0, 17349.0, 8497.0, 1226.0, 11126.0, 2477.0, 15276.0, 7993.0, 23547.0]}, "green_cover_days": {"Colombia": [26.0, 47.0, 30.0, 51.0, 38.0, 22.0, 7.0, 23.0, 26.0, 29.0, 15.0, 36.0], "Costa Rica": [49.0, 60.0, 27.0, 44.0, 52.0, 61.0, 31.0, 38.0, 8.0, 16.0, 24.0, 38.0], "Uganda": [11.0, 26.0, 16.0, 32.0, 19.0, 9.0, 1.0, 12.0, 3.0, 17.0, 9.0, 26.0]}, "green_total_cover_days": [25.0, 42.0, 24.0, 43.0, 34.0, 25.0, 10.0, 22.0, 15.0, 22.0, 14.0, 33.0], "green_price": {"Colombia": 6.95, "Costa Rica": 11.5, "Uganda": 8.5}, "green_purchased_kg": 987840.0, "green_scrapped_kg": 5040.0, "green_use_month": 80233.0, "ontime_month": [92.1, 92.2, 91.9, 92.2, 92.2, 92.0, 92.0, 92.1, 92.3, 92.1, 92.0, 92.1], "lead_dist": {"1": 153442, "2": 43128, "3": 34297, "4": 7638, "5": 1650, "6": 197}, "deliveries_weekday": [90548, 44617, 37240, 33064, 34883], "ship_bands": {"band": ["< €30", "€30–55", "€55–80", "€80–110", "> €110"], "orders": [35194, 55120, 55891, 58586, 35561], "fee": [174210.0, 272844.0, 76383.0, 75705.0, 0.0], "cost": [237560.0, 372060.0, 377264.0, 395456.0, 240037.0], "net": [-63349.0, -99216.0, -300881.0, -319750.0, -240037.0]}, "wrong_fee": {"orders": 30725, "eur": 152089.0, "min_value": 68.94, "max_value": 106.0}, "fee_share_by_qty": [100.0, 100.0, 100.0, 100.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "provinces": {"name": ["Noord-Holland", "Zuid-Holland", "Overijssel", "Groningen", "Zeeland", "Limburg", "Flevoland", "Noord-Brabant", "Friesland", "Drenthe", "Gelderland", "Utrecht"], "orders": [11921, 26390, 12110, 7139, 4767, 16920, 7202, 45915, 12013, 9447, 50487, 36041], "pop_k": [2953, 3804, 1184, 596, 391, 1118, 444, 2626, 659, 499, 2133, 1388], "per_1000": [4.0, 6.9, 10.2, 12.0, 12.2, 15.1, 16.2, 17.5, 18.2, 18.9, 23.7, 26.0], "rev": [872154.0, 1935016.0, 891544.0, 523672.0, 350904.0, 1228291.0, 522739.0, 3355179.0, 874811.0, 690282.0, 3678878.0, 2637750.0]}, "b2b_city": {"city": ["Utrecht", "The Hague", "Rotterdam", "Amsterdam", "Arnhem", "Nijmegen", "s-Hertogenbosch", "Amersfoort"], "clients": [6, 3, 3, 3, 2, 2, 1, 1], "kg": [4785.0, 2351.0, 2214.0, 2207.0, 1544.0, 1526.0, 828.0, 825.0], "rev": [123932.0, 60891.0, 57343.0, 57161.0, 39990.0, 39523.0, 21445.0, 21368.0]}, "kpi": {"revenue": 17982872.0, "eco_rev": 17561220.0, "b2b_rev": 421652.0, "eco_orders": 240352, "orders_per_day": 658.0, "b2b_clients": 21, "b2b_deliveries": 273, "b2b_share": 2.3, "sold_kg": 727268.0, "roasted_kg": 778718.0, "green_in_kg": 966630.0, "scrap_kg": 48000.0, "scrap_eur": 1159200.0, "scrap_share_of_output": 6.2, "scrap_days_of_orders": 25.0, "scrap_green_cost": 480751.0, "avg_green_price": 8.32, "rejected_batches": 224, "rejected_kg": 16954.0, "ontime": 92.1, "late_orders": 18991, "avg_lead_days": 1.59, "ship_net": -1023233.0, "ship_net_pct": -5.8, "ship_cost_per_kg_eco": 2.28, "ship_cost_per_kg_b2b": 1.26, "fg_avg_value": 1270294.0, "fg_peak_cover_days": 49.0, "green_min_cover_days": 10.0, "randstad_gap_orders": 85370.0, "randstad_gap_pct": 36.0, "bench_per_1000": 18.3, "peak_ratio": 1.43, "q4_vs_mid": 1.38, "shrink": 16.9}, "sim": {"base_demand": [63611.0, 66176.0, 52141.0, 50822.0, 52404.0, 50942.0, 52623.0, 52232.0, 70253.0, 72712.0, 70642.0, 72710.0], "b2b_month": [2453.0, 1270.0, 1276.0, 1256.0, 1255.0, 1288.0, 1325.0, 1198.0, 1222.0, 1200.0, 1224.0, 1313.0], "base_capacity": [67361.0, 60979.0, 69498.0, 58468.0, 63845.0, 66277.0, 65384.0, 70695.0, 65688.0, 64465.0, 67918.0, 58140.0], "workdays": [22, 20, 23, 18, 21, 22, 21, 23, 21, 22, 22, 19], "shrink": 0.169, "container_kg": 10080, "price_per_kg": 24.73, "ship_net_per_order": -4.26, "kg_per_order": 2.96, "setup_share": 0.239, "reject_rate": 0.0189, "light_reject_rate": 0.0496, "light_share": 0.192}};
+</script>
+<script>
+(function () {
+  "use strict";
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const nf = (v, d = 0) => Number(v).toLocaleString("en-GB", { maximumFractionDigits: d, minimumFractionDigits: d });
+  const eur = v => { const a = Math.abs(v); return (v < 0 ? "−€" : "€") + (a >= 1e6 ? nf(a / 1e6, 2) + "M" : a >= 1e3 ? nf(a / 1e3, 0) + "k" : nf(a, 0)); };
+  const K = D.kpi, M = D.months, ROASTS = ["Light", "Medium", "Dark"];
+  const roastVar = { Light: "--light-roast", Medium: "--medium-roast", Dark: "--dark-roast" };
+  const hasPlotly = typeof window.Plotly !== "undefined";
+
+  /* ---------- fill text from data ---------- */
+  function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t; }
+  setText("hook-kg", nf(K.scrap_kg));
+  setText("hook-lede", `That is ${eur(K.scrap_eur)} at shelf price, ${K.scrap_share_of_output}% of everything our roasters produced, and enough to ship every web order for ${K.scrap_days_of_orders} days. The capacity we need for growth is partly already there. It is in the bin.`);
+  setText("st-opd", nf(K.orders_per_day));
+  setText("st-q4", "+" + Math.round((K.q4_vs_mid - 1) * 100) + "%");
+  setText("st-scrap-eur", eur(K.scrap_eur));
+  setText("st-cover", K.fg_peak_cover_days + " days");
+  setText("st-green-min", K.green_min_cover_days + " days");
+  setText("ship-net", eur(K.ship_net));
+  setText("ship-pct", Math.abs(K.ship_net_pct) + "%");
+  setText("wrong-n", nf(D.wrong_fee.orders));
+  setText("wrong-eur", "€" + nf(D.wrong_fee.eur));
+  setText("ontime", K.ontime + "%");
+  setText("late-n", nf(K.late_orders));
+  setText("st-gap", "+" + nf(Math.round(K.randstad_gap_orders / 1000) * 1000));
+  setText("st-b2bkg", "€" + nf(K.ship_cost_per_kg_b2b, 2));
+  setText("v-scrap", eur(K.scrap_eur));
+  setText("v-ship", eur(-K.ship_net / 2));
+  setText("st-value", "≈ " + eur(K.scrap_eur - K.ship_net / 2));
+  setText("st-growth-rev", "+" + eur(K.revenue * 0.2));
+  const px = D.machines.find(m => m.machine.includes("Px120"));
+  setText("px-eff", px.effectiveness + "%");
+  setText("px-setup", px.setup_share + "%");
+  const q = D.quality, otherRate = (q.Medium.rejected + q.Dark.rejected) / (q.Medium.batches + q.Dark.batches) * 100;
+  setText("light-rate", q.Light.rate + "%");
+  setText("light-x", nf(q.Light.rate / otherRate, 1) + "×");
+  setText("pack-h", nf(D.packing_min_day.reduce((a, b) => a + b, 0) / 12 / 60, 1));
+
+  $("#approach-stats").innerHTML = [
+    [nf(K.eco_orders), "web orders analysed"], [eur(K.revenue), "revenue 2023"],
+    [nf(K.sold_kg / 1000) + " t", "coffee sold"], [K.b2b_clients, "office (B2B) clients, " + K.b2b_share + "% of revenue"]
+  ].map(([n, l]) => `<div class="stat"><span class="n" style="font-size:clamp(1.6rem,2.6vw,2.8rem)">${n}</span><span class="l">${l}</span></div>`).join("");
+
+  $("#wall-stats").innerHTML = D.machines.map(m =>
+    `<div class="stat"><span class="n">${nf(m.roast_hours_day, 1)} h</span><span class="l">${m.machine}: roasting hours per working day (one shift = 8 h)</span></div>`).join("");
+
+  const strip = $("#strip");
+  ["--light-roast", "--light-roast", "--light-roast", "--light-roast", "--medium-roast", "--medium-roast", "--medium-roast", "--medium-roast", "--dark-roast", "--dark-roast", "--dark-roast", "--dark-roast"]
+    .forEach((v, i) => { const s = document.createElement("i"); s.style.background = `var(${v})`; s.style.opacity = 0.55 + (i % 4) * 0.15; strip.appendChild(s); });
+
+  /* ---------- KPI chain ---------- */
+  const chain = [
+    { step: "1", name: "Sourcing", s: "red", v: K.green_min_cover_days + " days min. cover", kpi: "Green bean cover (days)", big: K.green_min_cover_days + " d", target: "≥ 42 days per origin", why: "At the end of July all green beans together covered 10 days of roasting; Uganda was down to 1,226 kg. A single late container stops a roaster.", go: "s-beans" },
+    { step: "2", name: "Roasting", s: "red", v: "8.0–8.5 h / day", kpi: "Roasting hours per machine per day", big: "100%", target: "≤ 85% of available hours", why: "Both roasters already work a full 8-hour shift every working day. The Px120 achieves only 61% of its nameplate speed, and 27% of every cycle is setup.", go: "s-wall" },
+    { step: "3", name: "Quality", s: "amber", v: q.Light.rate + "% light rejects", kpi: "Rejected batches (% of batches)", big: q.Light.rate + "%", target: "≤ 1.5% for every roast", why: `${K.rejected_batches} batches (${nf(K.rejected_kg / 1000, 1)} t) were rejected. Medium and dark are fine at about 1.4%; light roast is 3.6× worse.`, go: "s-hidden" },
+    { step: "4", name: "Packing", s: "amber", v: "≈ 8.3 h / day", kpi: "Packing line hours per day", big: "8.3 h", target: "≤ 85% of available hours", why: "One automated packing line serves both roasters and needs about 8.3 hours a day. It is the second bottleneck behind roasting.", go: "s-wall" },
+    { step: "5", name: "Stock", s: "red", v: nf(K.scrap_kg / 1000) + " t expired", kpi: "Expired finished goods (kg)", big: nf(K.scrap_kg / 1000) + " t", target: "0 kg; ≤ 28 days of cover", why: `${eur(K.scrap_eur)} of roasted coffee expired between June and August because production ran flat while demand dipped. Peak stock cover was ${K.fg_peak_cover_days} days.`, go: "s-waste" },
+    { step: "6", name: "Delivery", s: "amber", v: K.ontime + "% on time", kpi: "Delivered on promised day (%)", big: K.ontime + "%", target: "≥ 97%", why: `${nf(K.late_orders)} parcels were late against the next-working-day promise. Delays are spread evenly over the year, so the cause is the carrier agreement, not the season.`, go: "s-door" },
+    { step: "7", name: "Shipping €", s: "red", v: eur(K.ship_net) + " / yr", kpi: "Shipping fees − PostNL cost (€)", big: eur(K.ship_net), target: "≥ −3% of revenue", why: `Every order band loses money on shipping (${K.ship_net_pct}% of web revenue). The checkout also charges ${nf(D.wrong_fee.orders)} orders above €55 against our own free-shipping promise.`, go: "s-door" },
+  ];
+  const chainEl = $("#chain"), detail = $("#chain-detail");
+  chainEl.innerHTML = chain.map((c, i) => `<button type="button" class="link" data-s="${c.s}" data-i="${i}" aria-pressed="${i === 4}"><span class="step">Step ${c.step}</span><span class="name">${c.name}</span><span class="v">${c.v}</span></button>`).join("");
+  function showChain(i) {
+    const c = chain[i];
+    $$(".link", chainEl).forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.i === i)));
+    const col = c.s === "red" ? "var(--alert)" : c.s === "amber" ? "var(--warn)" : "var(--bean)";
+    detail.innerHTML = `<div><div class="eyebrow">${c.kpi}</div><div class="big" style="color:${col}">${c.big}</div><div class="src" style="margin-top:.4em">Target: ${c.target}</div></div><div style="display:grid;gap:.8em;align-content:start"><p>${c.why}</p><button type="button" class="link" style="border-top-width:1px;justify-self:start;padding:.4em .8em" data-go="${c.go}">Show the evidence →</button></div>`;
+  }
+  chainEl.addEventListener("click", e => { const b = e.target.closest(".link"); if (b) showChain(+b.dataset.i); });
+  detail.addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (b) goTo(slides.findIndex(s => s.id === b.dataset.go)); });
+  showChain(4);
+
+  /* ---------- verdict table ---------- */
+  $("#verdict-rows").innerHTML = [
+    ["1 · Waste", `${nf(K.scrap_kg)} kg expired (${eur(K.scrap_eur)}); flat production against seasonal demand`, "More flat production means more stale stock in summer and more shortage in autumn", "red", "Planning"],
+    ["2 · Capacity", "Both roasters and the packing line run a full shift every day", "Autumn demand ≈ 150% of one shift; ≈ 55 t of lost sales", "red", "Capacity"],
+    ["3 · Sourcing", `Green bean cover fell to ${K.green_min_cover_days} days; no reorder points`, "≈ 20% more beans: about 19 extra containers a year on the same fragile pattern", "red", "Supply risk"],
+    ["4 · Doorstep", `${K.ontime}% on time; shipping ${eur(K.ship_net)}; free-shipping bug`, "Every new parcel adds ≈ €4.26 of shipping loss and more Monday peaks", "red", "Margin"],
+    ["Quality", `Light roast ${q.Light.rate}% rejects vs ≈ 1.4% for others`, "More light-roast volume means more rejected batches and lost machine time", "amber", "Process"],
+  ].map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td><span class="pill ${r[3]}">${r[4]}</span></td></tr>`).join("");
+
+  /* ---------- gantt ---------- */
+  const g = [
+    ["Roast to demand (S&OP)", [1, 1, 1, 1], ""],
+    ["Fix free-shipping rule", [1, 0, 0, 0], ""],
+    ["PostNL SLA + Saturday dispatch", [1, 1, 0, 0], ""],
+    ["Bean reorder points", [1, 0, 0, 0], ""],
+    ["Setup reduction + light roast", [0, 1, 1, 0], ""],
+    ["Peak shift: hire, train, run", [0, 0, 1, 1], ""],
+    ["Reopen: offices + Randstad", [0, 1, 1, 1], "grow"],
+  ];
+  $("#gantt").innerHTML = `<div class="h">Move</div><div class="h">Q1</div><div class="h">Q2</div><div class="h">Q3</div><div class="h">Q4</div>` +
+    g.map(([n, qs, cls]) => `<div>${n}</div>` + qs.map(v => `<div>${v ? `<div class="bar ${cls}">&nbsp;</div>` : ""}</div>`).join("")).join("");
+
+  /* ---------- charts ---------- */
+  function baseLayout(extra = {}) {
+    const ink = css("--ink"), muted = css("--muted"), rule = css("--rule");
+    return Object.assign({
+      paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+      font: { family: "IBM Plex Sans, Segoe UI, sans-serif", color: ink, size: 13 },
+      margin: { l: 56, r: 20, t: 10, b: 40 },
+      xaxis: { gridcolor: rule, linecolor: rule, tickfont: { color: muted }, zeroline: false },
+      yaxis: { gridcolor: rule, linecolor: rule, tickfont: { color: muted }, zeroline: false, separatethousands: true },
+      legend: { orientation: "h", y: 1.08, x: 0, font: { color: muted, size: 12 }, bgcolor: "rgba(0,0,0,0)" },
+      hoverlabel: { font: { family: "IBM Plex Mono, monospace" } },
+      separators: ".,",
+      bargap: 0.25,
+    }, extra);
+  }
+  const CFG = { displayModeBar: false, responsive: true };
+  function plot(id, data, layout) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!hasPlotly) { el.innerHTML = '<p class="muted" style="padding:1em">Charts need an internet connection. Open Bean_There_Pitch_offline.html instead.</p>'; return; }
+    Plotly.react(el, data, baseLayout(layout), CFG);
+  }
+
+  const charts = {
+    "c-hook": () => {
+      const sold = K.sold_kg, exp = K.scrap_kg, rest = K.roasted_kg - sold - exp;
+      plot("c-hook", [
+        { type: "bar", orientation: "h", y: ["2023"], x: [sold], name: "Sold", marker: { color: css("--medium-roast") }, hovertemplate: "Sold: %{x:,.0f} kg<extra></extra>", text: ["Sold " + nf(sold / 1000) + " t"], textposition: "inside", insidetextfont: { color: css("--paper") } },
+        { type: "bar", orientation: "h", y: ["2023"], x: [exp], name: "Expired", marker: { color: css("--alert") }, hovertemplate: "Expired: %{x:,.0f} kg<extra></extra>", text: [nf(exp / 1000) + " t"], textposition: "outside" },
+        { type: "bar", orientation: "h", y: ["2023"], x: [rest], name: "Added to stock", marker: { color: css("--rule") }, hovertemplate: "Net added to stock: %{x:,.0f} kg<extra></extra>" },
+      ], { barmode: "stack", yaxis: { visible: false }, xaxis: { title: { text: "kg roasted", font: { color: css("--muted") } }, gridcolor: css("--rule"), tickfont: { color: css("--muted") } }, margin: { l: 10, r: 60, t: 30, b: 50 } });
+    },
+    "c-seasons": () => {
+      const d = D.daily;
+      plot("c-seasons", [
+        { x: d.date, y: d.kg, name: "kg ordered per day", type: "scatter", mode: "lines", line: { color: css("--medium-roast"), width: 1.6 }, fill: "tozeroy", fillcolor: "rgba(140,85,48,0.12)", hovertemplate: "%{x|%a %d %b}: %{y:,.0f} kg<extra></extra>" },
+        { x: d.date, y: d.orders, name: "orders per day", type: "scatter", mode: "lines", yaxis: "y2", line: { color: css("--ink"), width: 2.5 }, hovertemplate: "%{x|%a %d %b}: %{y} orders<extra></extra>" },
+      ], {
+        yaxis: { title: { text: "kg per day" }, rangemode: "tozero", gridcolor: css("--rule"), tickfont: { color: css("--muted") } },
+        yaxis2: { title: { text: "orders per day" }, overlaying: "y", side: "right", range: [0, 900], showgrid: false, tickfont: { color: css("--muted") } },
+        xaxis: { tickformat: "%b", dtick: "M1", gridcolor: css("--rule"), tickfont: { color: css("--muted") } },
+        margin: { l: 60, r: 60, t: 30, b: 36 },
+        annotations: [{ x: "2023-06-15", y: 700, yref: "y2", text: "658 orders, every day", showarrow: false, font: { family: "IBM Plex Mono", size: 12, color: css("--ink") }, bgcolor: css("--card") }],
+      });
+    },
+    "c-metronome": (r = "All") => {
+      const prod = r === "All" ? D.production_total : D.production[r], dem = r === "All" ? D.demand_total : D.demand[r];
+      const col = r === "All" ? css("--medium-roast") : css(roastVar[r]);
+      plot("c-metronome", [
+        { type: "bar", x: M, y: prod, name: "Roasted", marker: { color: col, opacity: 0.85 }, hovertemplate: "%{x}: roasted %{y:,.0f} kg<extra></extra>" },
+        { type: "scatter", mode: "lines+markers", x: M, y: dem, name: "Sold", line: { color: css("--ink"), width: 3 }, marker: { size: 7 }, hovertemplate: "%{x}: sold %{y:,.0f} kg<extra></extra>" },
+      ], { yaxis: { rangemode: "tozero", ticksuffix: " kg", gridcolor: css("--rule"), tickfont: { color: css("--muted") }, separatethousands: true }, margin: { l: 80, r: 20, t: 30, b: 36 },
+        shapes: [{ type: "rect", xref: "x", yref: "paper", x0: 1.5, x1: 7.5, y0: 0, y1: 1, fillcolor: css("--alert"), opacity: 0.06, line: { width: 0 } }, { type: "rect", xref: "x", yref: "paper", x0: 7.5, x1: 11.5, y0: 0, y1: 1, fillcolor: css("--warn"), opacity: 0.08, line: { width: 0 } }] });
+    },
+    "c-waste": () => {
+      const tr = ROASTS.map(k => ({ type: "scatter", mode: "lines", stackgroup: "s", x: M, y: D.fg_stock[k], name: k + " roast stock", line: { width: 0.5, color: css(roastVar[k]) }, fillcolor: css(roastVar[k]), hovertemplate: "%{x}: %{y:,.0f} kg " + k.toLowerCase() + "<extra></extra>" }));
+      const scrap = M.map((_, i) => ROASTS.reduce((s, k) => s + D.fg_scrap[k][i], 0));
+      tr.push({ type: "bar", x: M, y: scrap, yaxis: "y2", name: "Expired (written off)", marker: { color: css("--alert") }, width: 0.5, hovertemplate: "%{x}: %{y:,.0f} kg expired<extra></extra>", text: scrap.map(v => v ? nf(v / 1000) + " t" : ""), textposition: "outside", textfont: { color: css("--alert"), family: "IBM Plex Mono" } });
+      plot("c-waste", tr, { yaxis: { domain: [0.34, 1], rangemode: "tozero", ticksuffix: " kg", gridcolor: css("--rule"), tickfont: { color: css("--muted") }, separatethousands: true, title: { text: "in stock", font: { color: css("--muted"), size: 12 } } },
+        yaxis2: { domain: [0, 0.24], range: [0, 26000], ticksuffix: " kg", gridcolor: css("--rule"), tickfont: { color: css("--muted") }, separatethousands: true, title: { text: "expired", font: { color: css("--alert"), size: 12 } } },
+        margin: { l: 90, r: 20, t: 30, b: 36 } });
+    },
+    "c-wall": () => {
+      const p60 = D.machine_min_day["Probat P60"].map(v => v / 60), p120 = D.machine_min_day["Probat Px120"].map(v => v / 60), pack = D.packing_min_day.map(v => v / 60);
+      plot("c-wall", [
+        { type: "bar", x: M, y: p60, name: "Probat P60 roasting", marker: { color: css("--medium-roast") }, hovertemplate: "%{x}: %{y:.1f} h<extra>P60</extra>" },
+        { type: "bar", x: M, y: p120, name: "Probat Px120 roasting", marker: { color: css("--dark-roast") }, hovertemplate: "%{x}: %{y:.1f} h<extra>Px120</extra>" },
+        { type: "scatter", mode: "lines+markers", x: M, y: pack, name: "Packing line", line: { color: css("--warn"), width: 2.5 }, hovertemplate: "%{x}: %{y:.1f} h<extra>Packing</extra>" },
+      ], { barmode: "group", yaxis: { range: [0, 10], ticksuffix: " h", gridcolor: css("--rule"), tickfont: { color: css("--muted") } }, margin: { l: 50, r: 20, t: 30, b: 36 },
+        shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: 8, y1: 8, line: { color: css("--alert"), dash: "dash", width: 2 } }],
+        annotations: [{ xref: "paper", x: 0.01, y: 9.6, text: "dashed = one 8-hour shift", showarrow: false, xanchor: "left", font: { color: css("--alert"), family: "IBM Plex Mono", size: 12 }, bgcolor: css("--paper") }] });
+    },
+    "c-nameplate": () => {
+      const ms = D.machines;
+      plot("c-nameplate", [
+        { type: "bar", orientation: "h", y: ms.map(m => m.machine), x: ms.map(m => m.nameplate_kgph), name: "Nameplate", marker: { color: css("--rule") }, hovertemplate: "%{y}: rated %{x} kg/h<extra></extra>" },
+        { type: "bar", orientation: "h", y: ms.map(m => m.machine), x: ms.map(m => m.actual_kgph), name: "Achieved", marker: { color: css("--dark-roast") }, text: ms.map(m => m.effectiveness + "%"), textposition: "outside", hovertemplate: "%{y}: achieved %{x} kg/h<extra></extra>" },
+      ], { barmode: "overlay", margin: { l: 100, r: 50, t: 40, b: 30 }, legend: { orientation: "h", y: 1.15, x: 0, font: { color: css("--muted"), size: 12 } }, xaxis: { ticksuffix: " kg/h", gridcolor: css("--rule"), tickfont: { color: css("--muted") } } });
+    },
+    "c-quality": () => {
+      const reasons = [["weight", "Weight", "--muted"], ["colour", "Colour", "--warn"], ["profile", "Roast profile", "--alert"]];
+      const tr = reasons.map(([k, n, c]) => ({ type: "bar", x: ROASTS.map(r => r + " roast"), y: ROASTS.map(r => q[r][k]), name: n, marker: { color: css(c) }, hovertemplate: "%{x}: %{y} batches (" + n.toLowerCase() + ")<extra></extra>" }));
+      plot("c-quality", tr, { barmode: "stack", margin: { l: 40, r: 20, t: 60, b: 30 }, legend: { orientation: "h", y: 1.2, x: 0, font: { color: css("--muted"), size: 12 } },
+        annotations: ROASTS.map(r => ({ x: r + " roast", y: q[r].rejected, text: q[r].rate + "% of batches", showarrow: false, yshift: 12, font: { family: "IBM Plex Mono", size: 12, color: r === "Light" ? css("--alert") : css("--muted") } })) });
+    },
+    "c-beans": () => {
+      const cols = { "Costa Rica": "--light-roast", "Uganda": "--alert", "Colombia": "--dark-roast" };
+      const tr = Object.keys(D.green_cover_days).map(o => ({ type: "scatter", mode: "lines+markers", x: M, y: D.green_cover_days[o], name: o, line: { color: css(cols[o] || "--ink"), width: 2.5 }, hovertemplate: "%{x}: %{y:.0f} days<extra>" + o + "</extra>" }));
+      tr.push({ type: "scatter", mode: "lines", x: M, y: D.green_total_cover_days, name: "All beans", line: { color: css("--ink"), width: 4 }, hovertemplate: "%{x}: %{y:.0f} days<extra>All</extra>" });
+      plot("c-beans", tr, { yaxis: { rangemode: "tozero", ticksuffix: " d", gridcolor: css("--rule"), tickfont: { color: css("--muted") } }, margin: { l: 50, r: 20, t: 30, b: 36 },
+        shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: 42, y1: 42, line: { color: css("--bean"), dash: "dash", width: 2 } }],
+        annotations: [{ xref: "paper", x: 1, y: 42, text: "6-week safety level", showarrow: false, yshift: 12, xanchor: "right", font: { color: css("--bean"), family: "IBM Plex Mono", size: 12 } }] });
+    },
+    "c-ship": () => {
+      const s = D.ship_bands;
+      plot("c-ship", [{ type: "bar", x: s.band, y: s.net, marker: { color: css("--alert") }, customdata: s.orders, text: s.net.map(v => "−€" + nf(-v / 1000) + "k"), textposition: "outside", textfont: { family: "IBM Plex Mono" }, hovertemplate: "%{x}: %{customdata:,} orders<br>net %{y:,.0f} €<extra></extra>" }],
+        { yaxis: { tickprefix: "€", gridcolor: css("--rule"), tickfont: { color: css("--muted") }, range: [Math.min(...s.net) * 1.25, 0], separatethousands: true }, margin: { l: 70, r: 20, t: 20, b: 36 } });
+    },
+    "c-weekday": () => {
+      const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+      plot("c-weekday", [{ type: "bar", x: days, y: D.deliveries_weekday, marker: { color: days.map((_, i) => i === 0 ? css("--warn") : css("--muted")) }, hovertemplate: "%{x}: %{y:,} parcels<extra></extra>" }],
+        { margin: { l: 60, r: 10, t: 10, b: 30 }, yaxis: { gridcolor: css("--rule"), tickfont: { color: css("--muted") }, separatethousands: true } });
+    },
+    "c-prov": () => {
+      const p = D.provinces, hi = ["Noord-Holland", "Zuid-Holland"];
+      plot("c-prov", [{ type: "bar", orientation: "h", y: p.name, x: p.per_1000, customdata: p.orders, marker: { color: p.name.map(n => hi.includes(n) ? css("--bean") : css("--medium-roast")) }, text: p.per_1000.map(v => nf(v, 1)), textposition: "outside", textfont: { family: "IBM Plex Mono" }, hovertemplate: "%{y}: %{x:.1f} per 1,000 (%{customdata:,} orders)<extra></extra>" }],
+        { margin: { l: 110, r: 40, t: 10, b: 30 }, xaxis: { gridcolor: css("--rule"), tickfont: { color: css("--muted") } },
+          shapes: [{ type: "line", yref: "paper", y0: 0, y1: 1, x0: K.bench_per_1000, x1: K.bench_per_1000, line: { color: css("--ink"), dash: "dot", width: 1.5 } }],
+          annotations: [{ yref: "paper", y: 1, x: K.bench_per_1000, text: "rest of NL " + K.bench_per_1000, showarrow: false, yshift: 8, xanchor: "left", font: { family: "IBM Plex Mono", size: 11, color: css("--ink") } }] });
+    },
+    "c-sim": () => runSim(),
+    "c-explore": () => drawExplore(),
+  };
+
+  /* ---------- simulator ---------- */
+  const S = D.sim;
+  const startStock = ROASTS.reduce((s, k) => s + D.fg_stock[k][11], 0);
+  function simulate(p) {
+    const base = S.base_demand, b2b = S.b2b_month;
+    const perClient = b2b.map(v => v / K.b2b_clients);
+    const dem = base.map((d, i) => (d - b2b[i]) * (1 + p.growth) + b2b[i] + perClient[i] * p.b2bNew);
+    let mult = 1 / (1 - S.setup_share * p.setup);
+    if (p.light) mult *= 1 + S.light_share * (S.light_reject_rate - 0.015);
+    const peak = [0, 1, 8, 9, 10, 11];
+    const cap = S.base_capacity.map((c, i) => c * mult * (p.shift && peak.includes(i) ? 1.9 : 1));
+    const flat = S.base_capacity.reduce((a, b) => a + b, 0) / 12 * (1 + p.growth);
+    let stock = startStock, lost = 0, exp = 0;
+    const prod = [];
+    for (let i = 0; i < 12; i++) {
+      const next = dem[(i + 1) % 12];
+      const pr = p.plan ? Math.max(0, Math.min(cap[i], dem[i] + next * 15 / 30.4 - stock)) : Math.min(cap[i], flat);
+      stock += pr - dem[i];
+      if (stock < 0) { lost += -stock; stock = 0; }
+      const lim = next * 30 / 30.4;
+      if (stock > lim) { exp += stock - lim; stock = lim; }
+      prod.push(pr);
+    }
+    const sold = dem.reduce((a, b) => a + b, 0) - lost;
+    const roasted = prod.reduce((a, b) => a + b, 0);
+    const peakLoad = Math.max(...dem.map((d, i) => d / cap[i]));
+    return { dem, cap, prod, lost, exp, sold, roasted, peakLoad,
+      containers: roasted / (1 - S.shrink) / S.container_kg, revenue: sold * S.price_per_kg };
+  }
+  const inputs = { growth: $("#i-growth"), b2b: $("#i-b2b"), setup: $("#i-setup"), plan: $("#i-plan"), shift: $("#i-shift"), light: $("#i-light") };
+  function readInputs() {
+    return { growth: +inputs.growth.value / 100, b2bNew: +inputs.b2b.value, setup: +inputs.setup.value / 100, plan: inputs.plan.checked, shift: inputs.shift.checked, light: inputs.light.checked };
+  }
+  function runSim() {
+    const p = readInputs(), r = simulate(p);
+    $("#o-growth").textContent = inputs.growth.value + "%";
+    $("#o-b2b").textContent = inputs.b2b.value;
+    $("#o-setup").textContent = inputs.setup.value + "%";
+    const ok = r.lost < 1000 && r.exp < 1000;
+    const v = $("#sim-verdict");
+    v.textContent = ok ? "Ready: no lost sales, no expired coffee" : r.lost >= 1000 ? "Not ready: customers left without coffee" : "Not ready: coffee goes in the bin";
+    v.style.color = ok ? "var(--bean)" : "var(--alert)";
+    const out = [
+      [nf(r.lost / 1000, 0) + " t", "lost sales (" + eur(r.lost * S.price_per_kg) + ")", r.lost >= 1000],
+      [nf(r.exp / 1000, 0) + " t", "expired coffee", r.exp >= 1000],
+      [Math.round(r.peakLoad * 100) + "%", "peak month: demand ÷ capacity", r.peakLoad > 1],
+      [nf(r.containers, 0), "containers of green beans a year (2023: 98)", false],
+    ];
+    $("#sim-out").innerHTML = out.map(([n, l, bad]) => `<div class="stat"><span class="n" style="color:${bad ? "var(--alert)" : "var(--ink)"}">${n}</span><span class="l">${l}</span></div>`).join("");
+    plot("c-sim", [
+      { type: "bar", x: M, y: r.cap, name: "Capacity", width: 0.8, marker: { color: M.map((_, i) => r.dem[i] > r.cap[i] ? css("--alert") : css("--bean")), opacity: 0.3 }, hovertemplate: "%{x}: capacity %{y:,.0f} kg<extra></extra>" },
+      { type: "bar", x: M, y: r.prod, name: "Roasted", width: 0.4, marker: { color: css("--medium-roast") }, hovertemplate: "%{x}: roasted %{y:,.0f} kg<extra></extra>" },
+      { type: "scatter", mode: "lines+markers", x: M, y: r.dem, name: "Demand", line: { color: css("--ink"), width: 3 }, hovertemplate: "%{x}: demand %{y:,.0f} kg<extra></extra>" },
+    ], { barmode: "overlay", yaxis: { rangemode: "tozero", ticksuffix: " kg", gridcolor: css("--rule"), tickfont: { color: css("--muted") }, separatethousands: true }, margin: { l: 80, r: 20, t: 30, b: 36 } });
+  }
+  function setInputs(o) {
+    inputs.growth.value = o.growth; inputs.b2b.value = o.b2b; inputs.setup.value = o.setup;
+    inputs.plan.checked = o.plan; inputs.shift.checked = o.shift; inputs.light.checked = o.light; runSim();
+  }
+  Object.values(inputs).forEach(el => el.addEventListener("input", runSim));
+  $("#p-nothing").addEventListener("click", () => setInputs({ growth: 20, b2b: 0, setup: 0, plan: false, shift: false, light: false }));
+  $("#p-plan").addEventListener("click", () => setInputs({ growth: 20, b2b: 20, setup: 50, plan: true, shift: true, light: true }));
+
+  /* ---------- explorer ---------- */
+  let exKey = "stock";
+  function drawExplore() {
+    const ex = {
+      stock: { t: ROASTS.map(k => ({ x: M, y: D.fg_stock[k], name: k, type: "bar", marker: { color: css(roastVar[k]) } })), y: "kg", src: "Inventory (finished product), month-end stock", stack: true },
+      cover: { t: ROASTS.map(k => ({ x: M, y: D.fg_cover_days[k], name: k, type: "scatter", mode: "lines+markers", line: { color: css(roastVar[k]), width: 3 } })), y: "days", src: "Month-end stock ÷ that month's demand × 30.4" },
+      reject: { t: ROASTS.map(k => ({ x: M, y: D.reject_rate_month[k], name: k, type: "scatter", mode: "lines+markers", line: { color: css(roastVar[k]), width: 3 } })), y: "%", src: "Rejected batches ÷ batches roasted, per month" },
+      ontime: { t: [{ x: M, y: D.ontime_month, name: "On time", type: "bar", marker: { color: css("--bean") } }], y: "%", src: "Delivered ≤ next working day (Dutch holidays excluded)", range: [80, 100] },
+      kgorder: { t: [{ x: M, y: D.kg_per_order, name: "kg per order", type: "bar", marker: { color: css("--medium-roast") } }], y: "kg", src: "E-com kg ÷ e-com orders per month" },
+    }[exKey];
+    plot("c-explore", ex.t, { barmode: ex.stack ? "stack" : "group", yaxis: { ticksuffix: " " + ex.y, gridcolor: css("--rule"), tickfont: { color: css("--muted") }, range: ex.range, separatethousands: true }, margin: { l: 80, r: 20, t: 30, b: 36 } });
+    $("#ex-src").textContent = "Source: " + ex.src;
+  }
+  function segGroup(id, attr, cb) {
+    const el = $(id);
+    el.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      $$("button", el).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      cb(b.dataset[attr]);
+    });
+  }
+  segGroup("#ex-metric", "k", k => { exKey = k; drawExplore(); });
+  segGroup("#roast-toggle", "r", r => charts["c-metronome"](r));
+
+  /* ---------- deck navigation ---------- */
+  const slides = $$(".slide");
+  let cur = 0;
+  const stacked = () => window.matchMedia("(max-width: 899px)").matches;
+  const drawn = new Set();
+  function drawSlide(s) {
+    $$(".chart", s).forEach(c => {
+      if (!charts[c.id]) return;
+      if (!drawn.has(c.id)) { charts[c.id](); drawn.add(c.id); }
+      else if (hasPlotly) Plotly.Plots.resize(c);
+    });
+  }
+  function goTo(i) {
+    if (i < 0 || i >= slides.length) return;
+    cur = i;
+    if (stacked()) { slides[i].scrollIntoView({ behavior: "smooth" }); return; }
+    slides.forEach((s, j) => { s.classList.toggle("on", j === i); s.setAttribute("aria-hidden", String(j !== i)); });
+    $("#count").textContent = (i + 1) + " / " + slides.length;
+    $("#bar").style.width = ((i + 1) / slides.length * 100) + "%";
+    try { history.replaceState(null, "", "#" + slides[i].id); } catch (e) {}
+    requestAnimationFrame(() => drawSlide(slides[i]));
+    renderNotes();
+  }
+  function renderNotes() {
+    const n = $("aside.notes", slides[cur]);
+    $("#notes-h").textContent = "Speaker notes · " + (cur + 1) + " · " + (slides[cur].dataset.label || "");
+    $("#notes-body").innerHTML = n ? n.innerHTML : "";
+  }
+  function toggleNotes() { const p = $("#notes"); p.hidden = !p.hidden; renderNotes(); }
+  function toggleTheme() {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    drawn.clear();
+    if (stacked()) slides.forEach(drawSlide); else drawSlide(slides[cur]);
+  }
+  $("#b-prev").addEventListener("click", () => goTo(cur - 1));
+  $("#b-next").addEventListener("click", () => goTo(cur + 1));
+  $("#b-notes").addEventListener("click", toggleNotes);
+  $("#b-theme").addEventListener("click", toggleTheme);
+  document.addEventListener("keydown", e => {
+    if (e.target.matches("input, select, textarea")) return;
+    if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); goTo(cur + 1); }
+    else if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); goTo(cur - 1); }
+    else if (e.key === "Home") goTo(0);
+    else if (e.key === "End") goTo(slides.length - 1);
+    else if (e.key.toLowerCase() === "n") toggleNotes();
+    else if (e.key.toLowerCase() === "f") { if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {}); else document.exitFullscreen?.(); }
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => { if (!document.documentElement.dataset.theme) { drawn.clear(); stacked() ? slides.forEach(drawSlide) : drawSlide(slides[cur]); } });
+
+  function init() {
+    if (stacked()) { slides.forEach(drawSlide); }
+    const h = location.hash.slice(1), idx = slides.findIndex(s => s.id === h);
+    goTo(idx >= 0 ? idx : 0);
+    setInputs({ growth: 20, b2b: 0, setup: 0, plan: false, shift: false, light: false });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(init); else init();
+})();
+</script>
+</body>
+</html>
